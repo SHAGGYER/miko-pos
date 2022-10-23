@@ -31,36 +31,85 @@ exports.ProductController = class {
   static async search(req, res) {
     const user = await User.findById(res.locals.userId);
 
-    let searchQuery = {};
+    const regexString = new RegExp(req.query.search, "i");
 
-    if (req.query.search) {
-      const regexString = new RegExp(req.query.search, "i");
-
-      searchQuery = {
-        $or: [{ title: regexString }, { sku: regexString }],
-      };
-    }
-
-    const query = {
-      $and: [
-        {
-          ...searchQuery,
+    const products = await Product.aggregate([
+      {
+        $lookup: {
+          from: "storages",
+          localField: "storage",
+          foreignField: "_id",
+          as: "storage",
         },
-        {
-          shopId: user.shop,
+      },
+      {
+        $unwind: {
+          path: "$storage",
         },
-      ],
-    };
+      },
+      {
+        $match: {
+          $and: [
+            {
+              shopId: user.shop,
+            },
+            {
+              $or: [
+                {
+                  "storage.title": regexString,
+                },
+                { title: regexString },
+                { sku: regexString },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        $skip: parseInt(req.query.page - 1) * 10,
+      },
+      {
+        $limit: 10,
+      },
+    ]);
 
-    const products = await Product.find(query)
-      .limit(10)
-      .skip(parseInt(req.query.page - 1) * 10);
-
-    const totalRows = await Product.find(query).countDocuments();
+    const totalRows = await Product.aggregate([
+      {
+        $lookup: {
+          from: "storages",
+          localField: "storage",
+          foreignField: "_id",
+          as: "storage",
+        },
+      },
+      {
+        $unwind: {
+          path: "$storage",
+        },
+      },
+      {
+        $match: {
+          $and: [
+            {
+              shopId: user.shop,
+            },
+            {
+              $or: [
+                {
+                  "storage.title": regexString,
+                },
+                { title: regexString },
+                { sku: regexString },
+              ],
+            },
+          ],
+        },
+      },
+    ]);
 
     res.send({
       content: products,
-      totalRows,
+      totalRows: totalRows.length,
       page: parseInt(req.query.page),
       search: req.query.search,
     });

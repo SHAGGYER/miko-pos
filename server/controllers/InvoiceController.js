@@ -29,12 +29,23 @@ exports.InvoiceController = class {
       res.sendStatus(204);
     } catch (e) {
       console.log(e);
-      res.sendStatus(e.responseCode);
+      res.sendStatus(500);
     }
   }
 
   static async generateInvoice(req, res) {
     const user = await User.findById(res.locals.userId).populate("shop");
+
+    const errors = await ValidationService.run(
+      {
+        contact: [[(val) => !val, "Contact is required"]],
+      },
+      req.body
+    );
+
+    if (Object.keys(errors).length) {
+      return res.status(403).send({ errors });
+    }
 
     const invoice = new Invoice({
       lines: req.body.lines,

@@ -8,6 +8,10 @@ const ProductSchema = new mongoose.Schema(
     sell_price: Number,
     quantity: Number,
     sku: String,
+    storage: {
+      type: mongoose.Types.ObjectId,
+      ref: "Storage",
+    },
     deletedAt: Date,
   },
   {

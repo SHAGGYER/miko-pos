@@ -125,12 +125,19 @@ exports.ServiceController = class {
       serviceProductIds.push(dbServiceProduct._id);
     }
 
-    const service = new Service({
+    const dbService = new Service({
       ...req.body,
       shopId: user.shop,
       serviceProducts: serviceProductIds,
     });
-    await service.save();
+    await dbService.save();
+
+    const service = await Service.findById(dbService._id).populate({
+      path: "serviceProducts",
+      populate: {
+        path: "product",
+      },
+    });
 
     res.send({ content: service });
   }
