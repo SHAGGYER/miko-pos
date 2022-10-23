@@ -59,6 +59,11 @@ exports.ServiceController = class {
         {
           shopId: user.shop,
         },
+        {
+          deletedAt: {
+            $eq: undefined,
+          },
+        },
       ],
     };
 
