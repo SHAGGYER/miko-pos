@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import { HttpClient } from "./utilities/HttpClient";
-import FloatingTextField from "./components/FloatingTextField";
 import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
-import Login from "./components/Login";
 import styled from "styled-components";
 import Sidebar from "./components/Sidebar";
 import { AppContext } from "./AppContext";

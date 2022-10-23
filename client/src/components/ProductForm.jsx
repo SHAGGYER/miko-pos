@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { HttpClient } from "../utilities/HttpClient";
 import FloatingTextField from "./FloatingTextField";
 import { PrimaryButton } from "./PrimaryButton";
-import ResourceBrowser from "./ResourceBrowser";
+import ResourceBrowser, { RESOURCE_MODE } from "./ResourceBrowser";
 import { CustomDialog, useDialog } from "react-st-modal";
 import SettingsGroup from "./SettingsGroup";
 import Select from "./Select";
+import StorageForm from "./StorageForm";
 
 export const PRODUCT_TYPES = {
   ABSTRACT: "abstract",
@@ -20,6 +21,8 @@ const StorageDialog = () => {
         title="Storage"
         url="/api/storage"
         onSelect={(row) => dialog.close(row)}
+        createComponent={StorageForm}
+        modes={[RESOURCE_MODE.NEW]}
         selectMode
         columns={[
           {
@@ -40,7 +43,9 @@ function ProductForm({ row, onCreated, onUpdated }) {
   const [quantity, setQuantity] = useState(row ? row.quantity : "");
   const [sku, setSku] = useState(row ? row.sku : "");
   const [error, setError] = useState({});
-  const [selectedStorage, setSelectedStorage] = useState(null);
+  const [selectedStorage, setSelectedStorage] = useState(
+    row ? row.storage : null
+  );
 
   useEffect(() => {
     if (!sku) {
@@ -57,7 +62,7 @@ function ProductForm({ row, onCreated, onUpdated }) {
         sell_price: parseFloat(sell_price),
         quantity,
         sku,
-        storage: selectedStorage?._id,
+        storage: selectedStorage ? selectedStorage._id : null,
         type,
       };
 

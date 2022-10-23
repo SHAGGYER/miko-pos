@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { HttpClient } from "../utilities/HttpClient";
 import FloatingTextField from "./FloatingTextField";
 import { PrimaryButton } from "./PrimaryButton";
@@ -40,6 +40,10 @@ function ServiceForm({ row, onCreated, onUpdated }) {
   const [serviceProducts, setServiceProducts] = useState(
     row ? row.serviceProducts : []
   );
+
+  useEffect(() => {
+    generateRandomSku();
+  }, []);
 
   const onSubmit = async () => {
     setError({});
@@ -93,7 +97,6 @@ function ServiceForm({ row, onCreated, onUpdated }) {
               sell_price: result.sell_price,
             },
           ];
-      console.log(found);
       setServiceProducts(settedRows);
     }
   };
@@ -166,7 +169,7 @@ function ServiceForm({ row, onCreated, onUpdated }) {
               className="flex gap-4 justify-between relative border border-gray-500 p-4 items-center"
             >
               <span className="w-32">{serviceProduct.product?.title}</span>
-              <div className="flex gap-4">
+              <div className="flex gap-4 items-center">
                 <FloatingTextField
                   label="Quantity"
                   width="100px"
@@ -189,7 +192,10 @@ function ServiceForm({ row, onCreated, onUpdated }) {
                   label="Total Price"
                   value={getTotalPriceForServiceProduct(serviceProduct)}
                 />
-                <PrimaryButton onClick={() => removeServiceProduct(index)}>
+                <PrimaryButton
+                  $mini
+                  onClick={() => removeServiceProduct(index)}
+                >
                   Remove
                 </PrimaryButton>
               </div>

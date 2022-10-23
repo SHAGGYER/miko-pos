@@ -64,12 +64,20 @@ exports.InvoiceController = class {
     for (let line of req.body.lines) {
       linesHtml += `
 <tr>
-    <td width="80%" class="purchase_item"><span class="f-fallback">${
-      line.title
-    }</span></td>
-    <td class="align-right" width="20%" class="purchase_item"><span class="f-fallback">${line.sell_price.toFixed(
-      2
-    )}</span></td>
+    <td width="80%" class="purchase_item">
+      <span class="f-fallback">
+        ${line.title}
+      </span>
+    </td>
+    <td class="align-right" width="20%" class="purchase_item">
+      <span class="f-fallback">
+        ${
+          line.isDiscount && line.computationStyle === "percentage"
+            ? `${line.sell_price}%`
+            : line.sell_price.toFixed(2)
+        }
+      </span>
+    </td>
 </tr>      
 `;
     }
@@ -78,6 +86,10 @@ exports.InvoiceController = class {
       .replace("%LINES%", linesHtml)
       .replaceAll("%INVOICE_ID%", invoice.shortId)
       .replaceAll("%SHOP_NAME%", user.shop.title)
+      .replaceAll("%SHOP_ADDRESS%", user.shop.address.street)
+      .replaceAll("%SHOP_ZIP%", user.shop.address.zip)
+      .replaceAll("%SHOP_CITY%", user.shop.address.city)
+      .replaceAll("%SHOP_COUNTRY%", user.shop.address.country)
       .replaceAll("%TOTAL%", req.body.total.toFixed(2))
       .replaceAll("%INVOICE_DATE%", moment().format("DD-MM-YYYY"))
       .replaceAll("%DUE_DATE%", moment().add(7, "days").format("DD-MM-YYYY"))
@@ -95,6 +107,11 @@ exports.InvoiceController = class {
       await invoice.save();
       res.sendStatus(200);
     });
+  }
+
+  static async get(req, res) {
+    const row = await Invoice.findById(req.params.id);
+    res.send({ content: row });
   }
 
   static async update(req, res) {

@@ -101,7 +101,6 @@ exports.ProductController = class {
         title: [[(val) => !val, "Title is required"]],
         buy_price: [[(val) => !val && isNaN(val), "Buy Price is required"]],
         sell_price: [[(val) => !val && isNaN(val), "Sell Price is required"]],
-        quantity: [[(val) => !val, "Quantity is required"]],
         type: [[(val) => !val, "Type is required"]],
         sku: [
           [(val) => !val, "SKU is required"],

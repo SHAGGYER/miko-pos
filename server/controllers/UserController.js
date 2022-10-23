@@ -1,24 +1,52 @@
 const User = require("../models/User");
 const Shop = require("../models/Shop");
-const bcrypt = require("bcryptjs");
+const Product = require("../models/Product");
 const { ValidationService } = require("../services/ValidationService");
-const { v4 } = require("uuid");
-const shortid = require("shortid");
-const moment = require("moment");
-const validator = require("validator");
 
 exports.UserController = class {
   static async createShop(req, res) {
     const user = await User.findById(res.locals.userId);
 
+    const errors = await ValidationService.run(
+      {
+        title: [[(val) => !val, "Title is required"]],
+        "address.street": [[(val) => !val, "Address is required"]],
+        "address.zip": [[(val) => !val, "Zip is required"]],
+        "address.city": [[(val) => !val, "City is required"]],
+        "address.country": [[(val) => !val, "Country is required"]],
+        startSku: [[(val) => !val, "Start SKU is required"]],
+      },
+      req.body
+    );
+
+    if (Object.keys(errors).length) {
+      return res.status(403).send({ errors });
+    }
+
     const shop = new Shop({
       title: req.body.title,
       userId: user._id,
       startSku: req.body.startSku,
+      address: req.body.address,
     });
     await shop.save();
     user.shop = shop._id;
     await user.save();
+
+    const products = [
+      {
+        title: "Work 30 mins",
+        sell_price: 150,
+        type: "abstract",
+        quantity: undefined,
+        sku: "default",
+      },
+    ];
+
+    for (let product of products) {
+      const dbProduct = new Product({ ...product, shopId: shop._id });
+      await dbProduct.save();
+    }
 
     res.send({ content: { shop, user } });
   }
@@ -56,14 +84,8 @@ exports.UserController = class {
       await User.findByIdAndUpdate(res.locals.userId, { $set: req.body });
       res.sendStatus(204);
     } catch (error) {
-      console.log(error);
       res.status(500).send(error);
     }
-  };
-
-  static adminGetWebhotelsForUser = async (req, res) => {
-    const webhotels = await Webhotel.find({ user: req.query.userId });
-    res.send({ webhotels });
   };
 
   static async adminDeleteUsers(req, res) {

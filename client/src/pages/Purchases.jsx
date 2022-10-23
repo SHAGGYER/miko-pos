@@ -9,12 +9,18 @@ import FloatingTextField from "../components/FloatingTextField";
 import cogoToast from "cogo-toast";
 import InvoiceForm from "../components/InvoiceForm";
 import { AppContext } from "../AppContext";
+import Select from "../components/Select";
 
 const items = [
   {
     _id: 1,
     title: "Custom",
     isCustom: true,
+  },
+  {
+    _id: 2,
+    title: "Discount",
+    isDiscount: true,
   },
 ];
 
@@ -121,7 +127,7 @@ const ReceiptDialogStyled = styled.section`
   }
 `;
 
-const ReceiptDialog = ({ lines, shop }) => {
+const ReceiptDialog = ({ total, lines, shop }) => {
   console.log(lines);
   const dialog = useDialog();
   const [row, setRow] = useState({
@@ -131,6 +137,7 @@ const ReceiptDialog = ({ lines, shop }) => {
   return (
     <ReceiptDialogStyled>
       <InvoiceForm
+        total={total}
         row={row}
         shop={shop}
         onInvoiceGenerated={() => dialog.close(true)}
@@ -144,6 +151,7 @@ const AddPurchaseDialog = ({ item }) => {
   const [sell_price, setSellPrice] = useState(
     item ? item.sell_price?.toFixed(2) : ""
   );
+  const [computationStyle, setComputationStyle] = useState("static");
   const dialog = useDialog();
 
   const addPurchase = (e) => {
@@ -159,13 +167,17 @@ const AddPurchaseDialog = ({ item }) => {
       dialog.close({
         ...item,
         sell_price: parseFloat(sell_price),
+        computationStyle: item.isDiscount ? computationStyle : undefined,
       });
     }
   };
 
   return (
     <Modal>
-      <h2>Add {!item.isCustom ? item.title : "Custom"}</h2>
+      <h2>
+        Add{" "}
+        {item.isCustom ? "Custom" : item.isDiscount ? "Discount" : item.title}
+      </h2>
 
       <form onSubmit={addPurchase} className="flex flex-col gap-4 items-start">
         {item.isCustom && (
@@ -183,6 +195,17 @@ const AddPurchaseDialog = ({ item }) => {
           label="Amount"
           width="100%"
         />
+
+        {item.isDiscount && (
+          <Select
+            label="Computation Style"
+            value={computationStyle}
+            onChange={(e) => setComputationStyle(e.target.value)}
+          >
+            <option value="static">Static</option>
+            <option value="percentage">Percentage</option>
+          </Select>
+        )}
 
         <PrimaryButton>Add</PrimaryButton>
       </form>
@@ -232,7 +255,6 @@ function Purchases(props) {
   const addPurchase = async (item) => {
     const result = await CustomDialog(<AddPurchaseDialog item={item} />);
     if (result) {
-      console.log(result);
       const _purchases = [...purchases];
       _purchases.push(result);
       setPurchases(_purchases);
@@ -250,7 +272,21 @@ function Purchases(props) {
     let total = 0;
 
     purchases.forEach((x) => {
-      total += parseFloat(x.sell_price);
+      if (x.isDiscount && x.computationStyle === "static") {
+        total -= parseFloat(x.sell_price);
+      } else if (!x.isDiscount) {
+        total += parseFloat(x.sell_price);
+      }
+    });
+
+    purchases.forEach((x) => {
+      if (
+        x.isDiscount &&
+        x.computationStyle === "percentage" &&
+        x.sell_price > 0
+      ) {
+        total = total - (x.sell_price / 100) * total;
+      }
     });
 
     return total;
@@ -297,7 +333,12 @@ function Purchases(props) {
               <li key={index}>
                 <span>
                   {purchase.title} -{" "}
-                  {parseFloat(purchase.sell_price).toFixed(2)}
+                  {purchase.isDiscount &&
+                  purchase.computationStyle === "percentage" ? (
+                    <span>{purchase.sell_price}%</span>
+                  ) : (
+                    <span>{parseFloat(purchase.sell_price).toFixed(2)}</span>
+                  )}
                 </span>
                 <a href="#" onClick={() => deletePurchase(index)}>
                   Delete

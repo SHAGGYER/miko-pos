@@ -11,6 +11,7 @@ function Services(props) {
         title="Services"
         editComponent={ServiceForm}
         createComponent={ServiceForm}
+        bigDialog
         modes={[RESOURCE_MODE.UPDATE, RESOURCE_MODE.NEW]}
         columns={[
           {

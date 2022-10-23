@@ -2,10 +2,10 @@ import React, { useContext, useState } from "react";
 import { PrimaryButton } from "./PrimaryButton";
 import ResourceBrowser, { RESOURCE_MODE } from "./ResourceBrowser";
 import { CustomDialog, useDialog } from "react-st-modal";
-import { AppContext } from "../AppContext";
 import { HttpClient } from "../utilities/HttpClient";
 import SettingsGroup from "./SettingsGroup";
-import cogoToast from "cogo-toast";
+import ContactForm from "./ContactForm";
+import moment from "moment";
 
 const SelectContactDialog = () => {
   const dialog = useDialog();
@@ -14,7 +14,10 @@ const SelectContactDialog = () => {
       <ResourceBrowser
         url="/api/contacts"
         selectMode
+        bigDialog={false}
         onSelect={(row) => dialog.close(row)}
+        modes={[RESOURCE_MODE.NEW]}
+        createComponent={ContactForm}
         columns={[
           {
             name: "Name",
@@ -30,13 +33,15 @@ const SelectContactDialog = () => {
   );
 };
 
-function InvoiceForm({ row, shop, mode, onInvoiceGenerated }) {
+function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
   const [lines, setLines] = useState(row ? row.lines : []);
   const [selectedContact, setSelectedContact] = useState(
     row ? row.contact : null
   );
   const [saveLoading, setSaveLoading] = useState(false);
   const [error, setError] = useState({});
+  const [usedTotal, setUsedTotal] = useState(total ? total : row.total);
+  const [usedRow, setUsedRow] = useState(row ? row : undefined);
 
   const openContactDialog = async () => {
     const result = await CustomDialog(<SelectContactDialog />);
@@ -51,7 +56,7 @@ function InvoiceForm({ row, shop, mode, onInvoiceGenerated }) {
       await HttpClient().post("/api/invoices/generate-invoice", {
         lines,
         contact: selectedContact,
-        total: getTotal(),
+        total: usedTotal,
       });
       setSaveLoading(false);
       onInvoiceGenerated();
@@ -61,24 +66,13 @@ function InvoiceForm({ row, shop, mode, onInvoiceGenerated }) {
     }
   };
 
-  const getTotal = () => {
-    let total = 0;
-
-    lines.forEach((x) => {
-      total += x.sell_price;
-    });
-
-    if (isNaN(total)) return 0;
-
-    return total;
-  };
-
   const sendInvoice = async () => {
     const body = {
-      email: row?.contact?.email,
+      email: usedRow?.contact?.email,
       attachments: [
         {
-          path: import.meta.env.VITE_SERVER_URL + "/invoices/" + row.fileName,
+          path:
+            import.meta.env.VITE_SERVER_URL + "/invoices/" + usedRow.fileName,
         },
       ],
     };
@@ -88,13 +82,30 @@ function InvoiceForm({ row, shop, mode, onInvoiceGenerated }) {
 
   const viewInvoice = () => {
     window.open(
-      `${import.meta.env.VITE_SERVER_URL}/invoices/${row.fileName}`,
+      `${import.meta.env.VITE_SERVER_URL}/invoices/${usedRow.fileName}`,
       "_blank"
     );
   };
 
+  const registerPayment = async () => {
+    const paidAt = moment().format("YYYY-MM-DD");
+    await HttpClient().put(`/api/invoices/${usedRow._id}`, { paidAt });
+    setUsedRow({ ...usedRow, paidAt });
+  };
+
   return (
     <div>
+      {usedRow.paidAt && (
+        <div className="mb-4 bg-green-300 p-4">
+          <span>
+            Paid at:{" "}
+            <span className="font-bold">
+              {moment(usedRow.paidAt).format("DD-MM-YYYY k:mm")}
+            </span>
+          </span>
+        </div>
+      )}
+
       <div className="flex items-start justify-between mb-4">
         {!selectedContact ? (
           <div className="flex flex-col gap-4">
@@ -144,14 +155,20 @@ function InvoiceForm({ row, shop, mode, onInvoiceGenerated }) {
           {lines.map((line, index) => (
             <div key={index} className="w-full flex justify-between">
               <span>{line.title}</span>
-              <span>{line.sell_price.toFixed(2)}</span>
+              <span>
+                {line.isDiscount && line.computationStyle === "percentage" ? (
+                  <>{line.sell_price}%</>
+                ) : (
+                  <>{line.sell_price.toFixed(2)}</>
+                )}
+              </span>
             </div>
           ))}
         </div>
       </SettingsGroup>
 
       <SettingsGroup title="Total" description="Here goes the total">
-        <span>{getTotal().toFixed(2)}</span>
+        <span>{usedTotal.toFixed(2)}</span>
       </SettingsGroup>
 
       {mode !== RESOURCE_MODE.VIEW && (
@@ -167,6 +184,11 @@ function InvoiceForm({ row, shop, mode, onInvoiceGenerated }) {
             Send Invoice on Email
           </PrimaryButton>
           <PrimaryButton onClick={viewInvoice}>View PDF</PrimaryButton>
+          {!usedRow.paidAt && (
+            <PrimaryButton onClick={registerPayment}>
+              Register Payment
+            </PrimaryButton>
+          )}
         </div>
       )}
     </div>

@@ -1,6 +1,7 @@
 const validator = require("validator");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
+const objectPath = require("object-path");
 
 exports.ValidationService = class {
   static async run(field, obj) {
@@ -11,8 +12,10 @@ exports.ValidationService = class {
       for (let rule of reversedArray) {
         const func = rule[0];
         const error = rule[1];
-        const result = await Promise.resolve(func(obj[key]));
-        if (result) errors[key] = error;
+        const result = await Promise.resolve(func(objectPath.get(obj, key)));
+        if (result) {
+          objectPath.push(errors, key, error);
+        }
       }
     }
 

@@ -3,6 +3,7 @@ const { IsUser } = require("../middleware/IsUser");
 const { InvoiceController } = require("../controllers/InvoiceController");
 const router = require("express").Router();
 
+router.get("/:id", IsUser, InvoiceController.get);
 router.post("/send-invoice", IsUser, InvoiceController.sendInvoice);
 router.post("/generate-invoice", IsUser, InvoiceController.generateInvoice);
 router.get("/", IsUser, InvoiceController.search);

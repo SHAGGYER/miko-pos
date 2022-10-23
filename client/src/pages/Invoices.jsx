@@ -25,6 +25,12 @@ function Invoices() {
             selector: "shortId",
           },
           {
+            name: "Status",
+            cell: (row) => {
+              return <>{row.paidAt ? "Paid" : "Not yet paid"}</>;
+            },
+          },
+          {
             name: "Contact Name",
             selector: "contact.name",
             cell: (row) => row.contact?.name,
@@ -35,9 +41,8 @@ function Invoices() {
             cell: (row) => row.contact?.email,
           },
         ]}
+        bigDialog
         modes={[RESOURCE_MODE.VIEW]}
-        createComponent={InvoiceForm}
-        editComponent={InvoiceForm}
         viewComponent={InvoiceForm}
         shop={shop}
       />

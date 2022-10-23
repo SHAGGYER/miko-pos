@@ -19,7 +19,7 @@ const CreateDialog = ({ component: Component }) => {
 
   return (
     <div style={{ padding: "1rem", position: "relative" }}>
-      <Component onCreated={(product) => dialog.close(product)} />
+      <Component onCreated={(row) => dialog.close(row)} />
     </div>
   );
 };
@@ -44,28 +44,20 @@ const EditDialog = ({ row, component: Component }) => {
 
 const SearchComponent = ({ search, setSearch, doSearch }) => {
   return (
-    <>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          width: 500,
-        }}
-      >
-        <FloatingTextField
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          label="Søg..."
-        />
-        <PrimaryButton onClick={doSearch}>Søg</PrimaryButton>
-      </div>
-      <div style={{ flex: 1 }}></div>
-    </>
+    <div className="flex gap-4 items-end">
+      <FloatingTextField
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        label="Søg..."
+      />
+      <PrimaryButton onClick={doSearch}>Søg</PrimaryButton>
+    </div>
   );
 };
 
 function ResourceBrowser({
   shop,
+  bigDialog,
   selectMode,
   modes,
   createComponent,
@@ -118,7 +110,7 @@ function ResourceBrowser({
     const result = await CustomDialog(
       <CreateDialog component={createComponent} />,
       {
-        className: "big-dialog",
+        className: bigDialog ? "big-dialog" : "",
       }
     );
     if (result) {
@@ -129,7 +121,7 @@ function ResourceBrowser({
   const openEditDialog = async (row) => {
     const result = await CustomDialog(
       <EditDialog component={editComponent} row={row} />,
-      { className: "big-dialog" }
+      { className: bigDialog ? "big-dialog" : "" }
     );
     if (result) {
       await fetchRows(currentPage, search);
@@ -138,11 +130,12 @@ function ResourceBrowser({
 
   const openViewDialog = async (row) => {
     await CustomDialog(
-      <ViewDialog shop={shop} component={editComponent} row={row} />,
+      <ViewDialog shop={shop} component={viewComponent} row={row} />,
       {
-        className: "big-dialog",
+        className: bigDialog ? "big-dialog" : "",
       }
     );
+    await fetchRows(currentPage, search);
   };
 
   const fetchRows = async (page, searchQuery = "") => {
@@ -173,21 +166,22 @@ function ResourceBrowser({
 
   const deleteSelectedRows = async () => {
     const result = await Confirm(
-      "You are about to remove this user's account.",
-      "Please Confirm."
+      "You are about to delete the selected rows",
+      "Please Confirm"
     );
     if (result) {
       const ids = selectedRows.map((x) => x._id);
       await HttpClient().post(`${url}/delete`, { ids });
       await fetchRows(currentPage, search);
       setToggleCleared(!toggleCleared);
+      setSelectedRows([]);
     }
   };
 
   const DeleteSelectedRowsAction = ({ selectedCount }) => {
     return (
-      <div className="flex gap-1 items-center w-full justify-between">
-        <span>{selectedCount} rows</span>
+      <div className="flex gap-4 items-center justify-between">
+        <span>{selectedCount} selected rows</span>
         <PrimaryButton onClick={() => deleteSelectedRows()}>
           Delete
         </PrimaryButton>
@@ -195,9 +189,14 @@ function ResourceBrowser({
     );
   };
 
+  const handleRowClicked = async (row, event) => {
+    event.preventDefault();
+    await openViewDialog(row);
+  };
+
   return (
     <Page>
-      {!selectMode && modes.includes(RESOURCE_MODE.NEW) && (
+      {modes.includes(RESOURCE_MODE.NEW) && (
         <PrimaryButton onClick={openCreateDialog}>New</PrimaryButton>
       )}
 
@@ -206,24 +205,30 @@ function ResourceBrowser({
           title={title}
           columns={columns}
           data={rows.filter((x) => !x.deletedAt)}
+          onRowClicked={(row, event) => handleRowClicked(row, event)}
           progressPending={loading}
           pagination
           paginationServer
+          noHeader={true}
           paginationTotalRows={totalRows}
           clearSelectedRows={toggleCleared}
           onChangePage={handlePageChange}
           selectableRows={!selectMode ?? true}
           onSelectedRowsChange={handleSelectedRows}
-          contextComponent={<DeleteSelectedRowsAction />}
           subHeader
           paginationPerPage={10}
           paginationRowsPerPageOptions={[10]}
           subHeaderComponent={
-            <SearchComponent
-              search={search}
-              setSearch={setSearch}
-              doSearch={doSearch}
-            />
+            <div className="flex gap-4 w-full justify-between items-center">
+              <SearchComponent
+                search={search}
+                setSearch={setSearch}
+                doSearch={doSearch}
+              />
+              {!!selectedRows.length && (
+                <DeleteSelectedRowsAction selectedCount={selectedRows.length} />
+              )}
+            </div>
           }
         />
       </div>
