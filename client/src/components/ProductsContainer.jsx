@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { Confirm, CustomDialog, useDialog } from "react-st-modal";
 import { HttpClient } from "../utilities/HttpClient";
-import { UI } from "../../../admin/src/components/UI/UI";
 import { PrimaryButton } from "./PrimaryButton";
 import FloatingTextField from "./FloatingTextField";
 import ProductForm from "./ProductForm";
@@ -139,12 +138,12 @@ function ProductsContainer(props) {
 
   const DeleteSelectedRowsAction = ({ selectedCount }) => {
     return (
-      <UI.FlexBox justify="space-between" align="center">
+      <div className="flex gap-1 items-center">
         <span>{selectedCount} rows</span>
         <PrimaryButton onClick={() => deleteSelectedRows()}>
           Delete
         </PrimaryButton>
-      </UI.FlexBox>
+      </div>
     );
   };
   return (
