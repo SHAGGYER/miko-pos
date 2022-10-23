@@ -1,0 +1,15 @@
+:root {
+    --primary: #6883BA;
+    --primary-dark: #3D3B8E;
+    --primary-light: #64b5f6;
+    --light: #F3EAF4;
+    --dark: #020202;
+    --green: #90a959;
+    --red: #e53935;
+}
+
+.big-modal {
+    width: 80% !important;
+    max-width: 80% !important;
+    height: 80% !important;
+}

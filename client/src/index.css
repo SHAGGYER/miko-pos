@@ -1,0 +1,103 @@
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Mochiy+Pop+P+One&display=swap");
+
+:root {
+  --cta: #ffc107;
+  --red: #ff5252;
+  --dark-green: #388e3c;
+  --green: #4caf50;
+  --light-green: #8bc34a;
+  --purple: #9c27b0;
+  --blue: #2196f3;
+  --teal: #009688;
+  --pink: #e91e63;
+
+  --primary: #7d2abd;
+  --primary-light: #cf1fc9;
+  --primary-dark: #111827;
+
+  --gray-light: #dedede;
+  --gray: #5F6164;
+  --gray-dark: rgb(31, 41, 55);
+
+  --form-header-text: "Mochiy Pop P One";
+  --st-button-lightColor: var(--red) !important;
+  --st-button-lightTextColor: var(--red);
+  --st-button-primaryTextColor: var(--primary);
+}
+
+.image-gallery-content {
+  zoom: 95% !important;
+}
+
+
+.google-autocomplete-class > div {
+  border-color: black;
+  border-radius: 0;
+  padding: 0.25rem;
+}
+
+* {
+  outline: none;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+button:focus {
+  outline: none;
+}
+
+.react-datepicker-wrapper {
+  display: block !important;
+  border: 1px solid black !important;
+}
+
+input::placeholder {
+  color: rgb(88, 88, 88) !important;
+}
+
+h1 {
+  font-size: 30px;
+}
+
+h2 {
+  font-size: 26px;
+}
+
+h3 {
+  font-size: 24px;
+}
+
+h4 {
+  font-size: 22px;
+}
+
+h5 {
+  font-size: 20px;
+}
+
+h6 {
+  font-size: 18px;
+}
+
+
+.big-dialog {
+  max-width: 950px !important;
+  width: 950px !important;
+  height: 80% !important;
+  max-height: 80% !important;
+}
+
+@media screen and (max-width: 650px) {
+  .big-dialog {
+    max-width: 95% !important;
+    width: 95% !important;
+    height: 95% !important;
+    max-height: 95% !important;
+  }
+}
