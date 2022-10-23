@@ -123,7 +123,7 @@ exports.InvoiceController = class {
 
     const errors = await ValidationService.run(
       {
-        lines: [[(val) => !val?.length, "Lines are required"]],
+        lines: [[(val) => !val && !val.length, "Lines are required"]],
         contact: [[(val) => !val, "Contact is required"]],
       },
       req.body
