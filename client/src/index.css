@@ -89,8 +89,6 @@ h6 {
 .big-dialog {
   max-width: 950px !important;
   width: 950px !important;
-  height: 80% !important;
-  max-height: 80% !important;
 }
 
 @media screen and (max-width: 650px) {

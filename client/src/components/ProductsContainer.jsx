@@ -160,7 +160,7 @@ function ProductsContainer(props) {
         paginationTotalRows={totalRows}
         clearSelectedRows={toggleCleared}
         onChangePage={handlePageChange}
-        selectableRows={props.selectableRows ?? true}
+        selectableRows={!props.selectMode ?? true}
         onSelectedRowsChange={handleSelectedRows}
         contextComponent={<DeleteSelectedRowsAction />}
         subHeader

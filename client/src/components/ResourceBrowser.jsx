@@ -11,6 +11,7 @@ import { HttpClient } from "../utilities/HttpClient";
 export const RESOURCE_MODE = {
   VIEW: "view",
   UPDATE: "update",
+  NEW: "new",
 };
 
 const CreateDialog = ({ component: Component }) => {
@@ -31,12 +32,12 @@ const ViewDialog = ({ component: Component, ...props }) => {
   );
 };
 
-const EditDialog = ({ product, component: Component }) => {
+const EditDialog = ({ row, component: Component }) => {
   const dialog = useDialog();
 
   return (
     <div style={{ padding: "1rem", position: "relative" }}>
-      <Component row={product} onUpdated={(product) => dialog.close(product)} />
+      <Component row={row} onUpdated={(row) => dialog.close(row)} />
     </div>
   );
 };
@@ -66,6 +67,7 @@ const SearchComponent = ({ search, setSearch, doSearch }) => {
 function ResourceBrowser({
   shop,
   selectMode,
+  modes,
   createComponent,
   editComponent,
   viewComponent,
@@ -91,12 +93,16 @@ function ResourceBrowser({
         cell: (row) =>
           !selectMode ? (
             <div className="flex gap-1">
-              <PrimaryButton onClick={() => openEditDialog(row)}>
-                Edit
-              </PrimaryButton>
-              <PrimaryButton onClick={() => openViewDialog(row)}>
-                View
-              </PrimaryButton>
+              {modes.includes(RESOURCE_MODE.UPDATE) && (
+                <PrimaryButton onClick={() => openEditDialog(row)}>
+                  Edit
+                </PrimaryButton>
+              )}
+              {modes.includes(RESOURCE_MODE.VIEW) && (
+                <PrimaryButton onClick={() => openViewDialog(row)}>
+                  View
+                </PrimaryButton>
+              )}
             </div>
           ) : (
             <PrimaryButton onClick={() => props.onSelect(row)}>
@@ -110,16 +116,20 @@ function ResourceBrowser({
 
   const openCreateDialog = async () => {
     const result = await CustomDialog(
-      <CreateDialog component={createComponent} />
+      <CreateDialog component={createComponent} />,
+      {
+        className: "big-dialog",
+      }
     );
     if (result) {
-      setRows([...rows, result]);
+      await fetchRows(currentPage, search);
     }
   };
 
-  const openEditDialog = async (product) => {
+  const openEditDialog = async (row) => {
     const result = await CustomDialog(
-      <EditDialog component={editComponent} product={product} />
+      <EditDialog component={editComponent} row={row} />,
+      { className: "big-dialog" }
     );
     if (result) {
       await fetchRows(currentPage, search);
@@ -128,7 +138,10 @@ function ResourceBrowser({
 
   const openViewDialog = async (row) => {
     await CustomDialog(
-      <ViewDialog shop={shop} component={editComponent} row={row} />
+      <ViewDialog shop={shop} component={editComponent} row={row} />,
+      {
+        className: "big-dialog",
+      }
     );
   };
 
@@ -184,8 +197,8 @@ function ResourceBrowser({
 
   return (
     <Page>
-      {!selectMode && (
-        <PrimaryButton onClick={openCreateDialog}>New Contact</PrimaryButton>
+      {!selectMode && modes.includes(RESOURCE_MODE.NEW) && (
+        <PrimaryButton onClick={openCreateDialog}>New</PrimaryButton>
       )}
 
       <div className="mt-4">

@@ -5,6 +5,7 @@ import { CustomDialog, useDialog } from "react-st-modal";
 import { AppContext } from "../AppContext";
 import { HttpClient } from "../utilities/HttpClient";
 import SettingsGroup from "./SettingsGroup";
+import cogoToast from "cogo-toast";
 
 const SelectContactDialog = () => {
   const dialog = useDialog();
@@ -34,6 +35,8 @@ function InvoiceForm({ row, shop, mode, onInvoiceGenerated }) {
   const [selectedContact, setSelectedContact] = useState(
     row ? row.contact : null
   );
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [error, setError] = useState({});
 
   const openContactDialog = async () => {
     const result = await CustomDialog(<SelectContactDialog />);
@@ -43,12 +46,19 @@ function InvoiceForm({ row, shop, mode, onInvoiceGenerated }) {
   };
 
   const generateInvoice = async () => {
-    await HttpClient().post("/api/invoices/generate-invoice", {
-      lines,
-      contact: selectedContact,
-      total: getTotal(),
-    });
-    onInvoiceGenerated();
+    setSaveLoading(true);
+    try {
+      await HttpClient().post("/api/invoices/generate-invoice", {
+        lines,
+        contact: selectedContact,
+        total: getTotal(),
+      });
+      setSaveLoading(false);
+      onInvoiceGenerated();
+    } catch (e) {
+      setError(e?.response?.data.errors);
+      setSaveLoading(false);
+    }
   };
 
   const getTotal = () => {
@@ -87,9 +97,16 @@ function InvoiceForm({ row, shop, mode, onInvoiceGenerated }) {
     <div>
       <div className="flex items-start justify-between mb-4">
         {!selectedContact ? (
-          <PrimaryButton onClick={openContactDialog}>
-            Select Contact
-          </PrimaryButton>
+          <div className="flex flex-col gap-4">
+            <PrimaryButton onClick={openContactDialog}>
+              Select Contact
+            </PrimaryButton>
+            {error.contact && (
+              <div className="border border-red-500 bg-red-300 p-4">
+                {error.contact}
+              </div>
+            )}
+          </div>
         ) : (
           <div className="w-64">
             <SettingsGroup
@@ -138,7 +155,10 @@ function InvoiceForm({ row, shop, mode, onInvoiceGenerated }) {
       </SettingsGroup>
 
       {mode !== RESOURCE_MODE.VIEW && (
-        <PrimaryButton onClick={generateInvoice}>Save</PrimaryButton>
+        <PrimaryButton disabled={saveLoading} onClick={generateInvoice}>
+          {saveLoading && <i className="fa-solid fa-spinner fa-spin"></i>}
+          <span>Save</span>
+        </PrimaryButton>
       )}
 
       {mode === RESOURCE_MODE.VIEW && (

@@ -54,13 +54,22 @@ const FloatingTextFieldStyled = styled.div`
   }
 `;
 
-function FloatingTextField({ label, onChange, value, type, error, width }) {
+function FloatingTextField({
+  label,
+  onChange,
+  value,
+  type,
+  error,
+  width,
+  readOnly,
+}) {
   const uuid = v4();
 
   return (
     <FloatingTextFieldStyled className="field" style={{ width }}>
       {!!error && <ErrorStyle>{error}</ErrorStyle>}
       <input
+        readOnly={readOnly}
         id={uuid}
         type={type}
         value={value}

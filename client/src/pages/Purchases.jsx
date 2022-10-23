@@ -132,7 +132,7 @@ const ReceiptDialog = ({ total, lines, shop }) => {
       <InvoiceForm
         row={row}
         shop={shop}
-        onInvoiceGenerated={() => dialog.close()}
+        onInvoiceGenerated={() => dialog.close(true)}
       />
     </ReceiptDialogStyled>
   );

@@ -35,7 +35,6 @@ const AddProductDialog = () => {
 
 function ServiceForm({ row, onCreated, onUpdated }) {
   const [title, setTitle] = useState(row ? row.title : "");
-  const [sell_price, setSellPrice] = useState(row ? row.sell_price : "");
   const [sku, setSku] = useState(row ? row.sku : "");
   const [error, setError] = useState({});
   const [serviceProducts, setServiceProducts] = useState(
@@ -133,7 +132,7 @@ function ServiceForm({ row, onCreated, onUpdated }) {
   };
 
   return (
-    <div style={{ position: "relative", padding: "1rem" }}>
+    <div style={{ position: "relative", padding: "1rem 1rem 3rem" }}>
       <h3 className="mb-4">{row ? "Update" : "Create"} Service</h3>
       <SettingsGroup title="Data" description="Service Data">
         <div className="flex flex-col gap-4">
@@ -166,7 +165,7 @@ function ServiceForm({ row, onCreated, onUpdated }) {
               key={index}
               className="flex gap-4 justify-between relative border border-gray-500 p-4 items-center"
             >
-              <span className="w-32">{serviceProduct.product.title}</span>
+              <span className="w-32">{serviceProduct.product?.title}</span>
               <div className="flex gap-4">
                 <FloatingTextField
                   label="Quantity"

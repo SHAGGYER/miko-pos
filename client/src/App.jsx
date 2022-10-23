@@ -21,6 +21,7 @@ import Products from "./pages/Products";
 import Services from "./pages/Services";
 import Contacts from "./pages/Contacts";
 import Invoices from "./pages/Invoices";
+import Storage from "./pages/Storage";
 
 const Wrapper = styled.div`
   display: flex;
@@ -102,6 +103,7 @@ function App() {
                 <Route path="/services" element={<Services />} />
                 <Route path="/contacts" element={<Contacts />} />
                 <Route path="/invoices" element={<Invoices />} />
+                <Route path="/storage" element={<Storage />} />
               </Routes>
             </WrapperApp>
           ) : (

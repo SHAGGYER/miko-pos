@@ -2,6 +2,29 @@ import React, { useEffect, useState } from "react";
 import { HttpClient } from "../utilities/HttpClient";
 import FloatingTextField from "./FloatingTextField";
 import { PrimaryButton } from "./PrimaryButton";
+import ResourceBrowser from "./ResourceBrowser";
+import { CustomDialog, useDialog } from "react-st-modal";
+import SettingsGroup from "./SettingsGroup";
+
+const StorageDialog = () => {
+  const dialog = useDialog();
+  return (
+    <div className="p-4">
+      <ResourceBrowser
+        title="Storage"
+        url="/api/storage"
+        onSelect={(row) => dialog.close(row)}
+        selectMode
+        columns={[
+          {
+            name: "Title",
+            selector: "title",
+          },
+        ]}
+      />
+    </div>
+  );
+};
 
 function ProductForm({ row, onCreated, onUpdated }) {
   const [title, setTitle] = useState(row ? row.title : "");
@@ -10,6 +33,7 @@ function ProductForm({ row, onCreated, onUpdated }) {
   const [quantity, setQuantity] = useState(row ? row.quantity : "");
   const [sku, setSku] = useState(row ? row.sku : "");
   const [error, setError] = useState({});
+  const [selectedStorage, setSelectedStorage] = useState(null);
 
   useEffect(() => {
     if (!sku) {
@@ -26,6 +50,7 @@ function ProductForm({ row, onCreated, onUpdated }) {
         sell_price: parseFloat(sell_price),
         quantity,
         sku,
+        storage: selectedStorage._id,
       };
 
       if (!row?._id) {
@@ -47,9 +72,34 @@ function ProductForm({ row, onCreated, onUpdated }) {
     setSku(data.content);
   };
 
+  const openStorageDialog = async () => {
+    const result = await CustomDialog(<StorageDialog />);
+    if (result) {
+      setSelectedStorage(result);
+    }
+  };
+
   return (
     <div className="relative p-4 flex flex-col gap-4 items-start">
       <h3>{row ? "Update" : "Create"} Product</h3>
+
+      <div className="w-full">
+        {!selectedStorage ? (
+          <PrimaryButton onClick={openStorageDialog}>
+            Select Storage
+          </PrimaryButton>
+        ) : (
+          <SettingsGroup
+            title={selectedStorage.title}
+            description="Selected Storage"
+          >
+            <PrimaryButton onClick={() => setSelectedStorage(null)}>
+              Reset
+            </PrimaryButton>
+          </SettingsGroup>
+        )}
+      </div>
+
       <FloatingTextField
         error={error.title}
         label="Product Title"

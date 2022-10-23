@@ -73,6 +73,7 @@ function Sidebar(props) {
             <li onClick={() => navigate("/products")}>Products</li>
             <li onClick={() => navigate("/services")}>Services</li>
             <li onClick={() => navigate("/invoices")}>Invoices</li>
+            <li onClick={() => navigate("/storage")}>Storage</li>
             <li onClick={() => navigate("/history")}>History</li>
           </ul>
         ) : (

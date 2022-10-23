@@ -7,7 +7,7 @@ import { Confirm, CustomDialog, useDialog } from "react-st-modal";
 import ProductsContainer from "../components/ProductsContainer";
 import DataTable from "react-data-table-component";
 import { HttpClient } from "../utilities/HttpClient";
-import ResourceBrowser from "../components/ResourceBrowser";
+import ResourceBrowser, { RESOURCE_MODE } from "../components/ResourceBrowser";
 import ContactForm from "../components/ContactForm";
 
 function Contacts() {
@@ -26,6 +26,7 @@ function Contacts() {
             selector: "email",
           },
         ]}
+        modes={[RESOURCE_MODE.NEW, RESOURCE_MODE.UPDATE]}
         createComponent={ContactForm}
         editComponent={ContactForm}
       />
