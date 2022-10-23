@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 
-module.exports = class MailService {
-  static async sendMail({to, subject, html, attachments, from}) {
+exports.MailService = class {
+  static async sendMail({ to, subject, html, attachments, from }) {
     try {
       let transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST,
@@ -11,21 +11,20 @@ module.exports = class MailService {
           user: process.env.MAIL_USERNAME,
           pass: process.env.MAIL_PASSWORD,
         },
-        tls: {rejectUnauthorized: false},
+        tls: { rejectUnauthorized: false },
       });
 
       await transporter.sendMail({
-        from: from ? from : `"Daysure.dk" <${process.env.MAIL_FROM}>`,
+        from: `"Miko POS" <${process.env.MAIL_FROM}>`,
         to,
         subject,
         html,
         attachments,
       });
 
-      return true;
+      return Promise.resolve(true);
     } catch (e) {
-      console.log(e.message);
-      return false;
+      return Promise.reject(e);
     }
   }
 };

@@ -1,9 +1,8 @@
 const Product = require("../models/Product");
 const Service = require("../models/Service");
 const User = require("../models/User");
-const Shop = require("../models/Shop");
+const Invoice = require("../models/Invoice");
 const { ValidationService } = require("../services/ValidationService");
-const validator = require("validator");
 
 function getRandomArbitrary(min, max) {
   return parseInt(Math.random() * (max - min) + min);

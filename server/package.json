@@ -20,6 +20,8 @@
     "expo-server-sdk": "^3.6.0",
     "express": "^4.17.2",
     "geoip-country": "^4.0.104",
+    "handlebars": "^4.7.7",
+    "html-pdf-node": "^1.0.8",
     "ipware": "^2.0.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.1",

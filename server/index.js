@@ -42,7 +42,7 @@ const options = {
 
 const swaggerSpec = swaggerJSDoc(options);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
+app.use("/invoices", express.static(path.join(__dirname, "invoices")));
 const port = process.env.PORT;
 const httpServer = app.listen(port, () => {
   console.log(`Server started on port ${port}`);
