@@ -12,6 +12,7 @@ const ProductSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "Storage",
     },
+    type: String,
     deletedAt: Date,
   },
   {

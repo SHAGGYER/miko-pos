@@ -121,7 +121,8 @@ const ReceiptDialogStyled = styled.section`
   }
 `;
 
-const ReceiptDialog = ({ total, lines, shop }) => {
+const ReceiptDialog = ({ lines, shop }) => {
+  console.log(lines);
   const dialog = useDialog();
   const [row, setRow] = useState({
     lines,
@@ -139,8 +140,10 @@ const ReceiptDialog = ({ total, lines, shop }) => {
 };
 
 const AddPurchaseDialog = ({ item }) => {
-  const [amount, setAmount] = useState(item ? item.sell_price.toFixed(2) : "");
   const [title, setTitle] = useState("");
+  const [sell_price, setSellPrice] = useState(
+    item ? item.sell_price?.toFixed(2) : ""
+  );
   const dialog = useDialog();
 
   const addPurchase = (e) => {
@@ -149,13 +152,13 @@ const AddPurchaseDialog = ({ item }) => {
     if (item.isCustom) {
       dialog.close({
         ...item,
-        amount,
+        sell_price: parseFloat(sell_price),
         title,
       });
     } else {
       dialog.close({
         ...item,
-        amount,
+        sell_price: parseFloat(sell_price),
       });
     }
   };
@@ -175,8 +178,8 @@ const AddPurchaseDialog = ({ item }) => {
         )}
 
         <FloatingTextField
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          value={sell_price}
+          onChange={(e) => setSellPrice(e.target.value)}
           label="Amount"
           width="100%"
         />
@@ -229,6 +232,7 @@ function Purchases(props) {
   const addPurchase = async (item) => {
     const result = await CustomDialog(<AddPurchaseDialog item={item} />);
     if (result) {
+      console.log(result);
       const _purchases = [...purchases];
       _purchases.push(result);
       setPurchases(_purchases);
@@ -246,7 +250,7 @@ function Purchases(props) {
     let total = 0;
 
     purchases.forEach((x) => {
-      total += parseFloat(x.amount);
+      total += parseFloat(x.sell_price);
     });
 
     return total;
@@ -292,7 +296,8 @@ function Purchases(props) {
             {purchases.map((purchase, index) => (
               <li key={index}>
                 <span>
-                  {purchase.title} - {parseFloat(purchase.amount).toFixed(2)}
+                  {purchase.title} -{" "}
+                  {parseFloat(purchase.sell_price).toFixed(2)}
                 </span>
                 <a href="#" onClick={() => deletePurchase(index)}>
                   Delete

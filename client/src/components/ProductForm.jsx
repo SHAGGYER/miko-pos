@@ -5,6 +5,12 @@ import { PrimaryButton } from "./PrimaryButton";
 import ResourceBrowser from "./ResourceBrowser";
 import { CustomDialog, useDialog } from "react-st-modal";
 import SettingsGroup from "./SettingsGroup";
+import Select from "./Select";
+
+export const PRODUCT_TYPES = {
+  ABSTRACT: "abstract",
+  STANDARD: "standard",
+};
 
 const StorageDialog = () => {
   const dialog = useDialog();
@@ -28,6 +34,7 @@ const StorageDialog = () => {
 
 function ProductForm({ row, onCreated, onUpdated }) {
   const [title, setTitle] = useState(row ? row.title : "");
+  const [type, setType] = useState(row ? row.type : "");
   const [buy_price, setBuyPrice] = useState(row ? row.buy_price : "");
   const [sell_price, setSellPrice] = useState(row ? row.sell_price : "");
   const [quantity, setQuantity] = useState(row ? row.quantity : "");
@@ -50,10 +57,11 @@ function ProductForm({ row, onCreated, onUpdated }) {
         sell_price: parseFloat(sell_price),
         quantity,
         sku,
-        storage: selectedStorage._id,
+        storage: selectedStorage?._id,
+        type,
       };
 
-      if (!row?._id) {
+      if (!row) {
         const { data } = await HttpClient().post("/api/products", body);
         onCreated(data.content);
       } else {
@@ -83,22 +91,38 @@ function ProductForm({ row, onCreated, onUpdated }) {
     <div className="relative p-4 flex flex-col gap-4 items-start">
       <h3>{row ? "Update" : "Create"} Product</h3>
 
-      <div className="w-full">
-        {!selectedStorage ? (
-          <PrimaryButton onClick={openStorageDialog}>
-            Select Storage
-          </PrimaryButton>
-        ) : (
-          <SettingsGroup
-            title={selectedStorage.title}
-            description="Selected Storage"
-          >
-            <PrimaryButton onClick={() => setSelectedStorage(null)}>
-              Reset
+      <Select
+        label="Type"
+        error={error.type}
+        value={type}
+        onChange={(e) => setType(e.target.value)}
+      >
+        <option value="">Choose One</option>
+        {Object.keys(PRODUCT_TYPES).map((key, index) => (
+          <option key={index} value={PRODUCT_TYPES[key]}>
+            {PRODUCT_TYPES[key]}
+          </option>
+        ))}
+      </Select>
+
+      {type === PRODUCT_TYPES.STANDARD && (
+        <div className="w-full">
+          {!selectedStorage ? (
+            <PrimaryButton onClick={openStorageDialog}>
+              Select Storage
             </PrimaryButton>
-          </SettingsGroup>
-        )}
-      </div>
+          ) : (
+            <SettingsGroup
+              title={selectedStorage.title}
+              description="Selected Storage"
+            >
+              <PrimaryButton onClick={() => setSelectedStorage(null)}>
+                Reset
+              </PrimaryButton>
+            </SettingsGroup>
+          )}
+        </div>
+      )}
 
       <FloatingTextField
         error={error.title}

@@ -17,7 +17,7 @@ function Products({ selectMode, onSelected, ...props }) {
     {
       name: "Storage",
       selector: "storage.title",
-      sortable: false,
+      cell: (row) => row.storage?.title,
     },
     {
       name: "SKU",
@@ -27,6 +27,7 @@ function Products({ selectMode, onSelected, ...props }) {
     {
       name: "Sell Price",
       selector: "sell_price",
+      cell: (row) => parseFloat(row.sell_price).toFixed(2),
       sortable: true,
     },
     {

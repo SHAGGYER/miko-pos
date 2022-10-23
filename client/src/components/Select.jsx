@@ -4,7 +4,6 @@ import { ErrorStyle } from "./FloatingTextField";
 
 export const LabelStyle = styled.label`
   display: block;
-  transform: scale(0.75);
   color: #0c5460;
   margin-bottom: 0.25rem;
 `;

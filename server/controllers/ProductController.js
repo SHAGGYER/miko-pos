@@ -33,7 +33,7 @@ exports.ProductController = class {
 
     const regexString = new RegExp(req.query.search, "i");
 
-    const products = await Product.aggregate([
+    const query = [
       {
         $lookup: {
           from: "storages",
@@ -45,11 +45,17 @@ exports.ProductController = class {
       {
         $unwind: {
           path: "$storage",
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
         $match: {
           $and: [
+            {
+              deletedAt: {
+                $eq: undefined,
+              },
+            },
             {
               shopId: user.shop,
             },
@@ -65,6 +71,10 @@ exports.ProductController = class {
           ],
         },
       },
+    ];
+
+    const products = await Product.aggregate([
+      ...query,
       {
         $skip: parseInt(req.query.page - 1) * 10,
       },
@@ -73,39 +83,7 @@ exports.ProductController = class {
       },
     ]);
 
-    const totalRows = await Product.aggregate([
-      {
-        $lookup: {
-          from: "storages",
-          localField: "storage",
-          foreignField: "_id",
-          as: "storage",
-        },
-      },
-      {
-        $unwind: {
-          path: "$storage",
-        },
-      },
-      {
-        $match: {
-          $and: [
-            {
-              shopId: user.shop,
-            },
-            {
-              $or: [
-                {
-                  "storage.title": regexString,
-                },
-                { title: regexString },
-                { sku: regexString },
-              ],
-            },
-          ],
-        },
-      },
-    ]);
+    const totalRows = await Product.aggregate(query);
 
     res.send({
       content: products,
@@ -121,9 +99,10 @@ exports.ProductController = class {
     const errors = await ValidationService.run(
       {
         title: [[(val) => !val, "Title is required"]],
-        buy_price: [[(val) => !val, "Buy Price is required"]],
-        sell_price: [[(val) => !val, "Sell Price is required"]],
+        buy_price: [[(val) => !val && isNaN(val), "Buy Price is required"]],
+        sell_price: [[(val) => !val && isNaN(val), "Sell Price is required"]],
         quantity: [[(val) => !val, "Quantity is required"]],
+        type: [[(val) => !val, "Type is required"]],
         sku: [
           [(val) => !val, "SKU is required"],
           [
