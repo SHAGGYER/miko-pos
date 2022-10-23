@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { HttpClient } from "../utilities/HttpClient";
 import { Page } from "../components/Page";
@@ -6,9 +6,9 @@ import { PrimaryButton } from "../components/PrimaryButton";
 import { CustomDialog, useDialog } from "react-st-modal";
 import { Modal } from "../components/Modal";
 import FloatingTextField from "../components/FloatingTextField";
-import Select from "../components/Select";
-import { Table } from "../components/Table";
 import cogoToast from "cogo-toast";
+import InvoiceForm from "../components/InvoiceForm";
+import { AppContext } from "../AppContext";
 
 const items = [
   {
@@ -121,74 +121,19 @@ const ReceiptDialogStyled = styled.section`
   }
 `;
 
-const ReceiptDialog = ({ total, lines, bankAccounts }) => {
+const ReceiptDialog = ({ total, lines, shop }) => {
   const dialog = useDialog();
-  const [bankAccountId, setBankAccountId] = useState("");
-  const [chosenBankAccount, setChosenBankAccount] = useState(null);
-
-  useEffect(() => {
-    if (bankAccountId) {
-      const account = bankAccounts.find(
-        (x) => x.id === parseInt(bankAccountId)
-      );
-      setChosenBankAccount(account);
-    }
-  }, [bankAccountId]);
-
-  const getBalanceAfter = () => {
-    if (!chosenBankAccount) return 0;
-
-    return (chosenBankAccount.balance - total).toFixed(2);
-  };
-
-  const save = async () => {
-    const body = {
-      lines,
-      total,
-      bank_account_id: bankAccountId,
-    };
-
-    await HttpClient().post("/api/purchases", body);
-    dialog.close(true);
-  };
+  const [row, setRow] = useState({
+    lines,
+  });
 
   return (
     <ReceiptDialogStyled>
-      <h1>Summary</h1>
-      <Select
-        label="Choose Bank Account"
-        value={bankAccountId}
-        onChange={(e) => setBankAccountId(e.target.value)}
-      >
-        <option value="">Choose One</option>
-        {bankAccounts.map((bankAccount, index) => (
-          <option value={bankAccount.id} key={index}>
-            {bankAccount.name}
-          </option>
-        ))}
-      </Select>
-
-      {!!chosenBankAccount && (
-        <>
-          <Table style={{ marginTop: "1rem" }}>
-            <tbody>
-              <tr>
-                <td>Current Bank Balance</td>
-                <td>{chosenBankAccount.balance.toFixed(2)}</td>
-              </tr>
-              <tr>
-                <td>Total for purchases</td>
-                <td>{total}</td>
-              </tr>
-              <tr>
-                <td>Bank Balance After Transaction(s)</td>
-                <td>{getBalanceAfter()}</td>
-              </tr>
-            </tbody>
-          </Table>
-          <PrimaryButton onClick={save}>Save</PrimaryButton>
-        </>
-      )}
+      <InvoiceForm
+        row={row}
+        shop={shop}
+        onInvoiceGenerated={() => dialog.close()}
+      />
     </ReceiptDialogStyled>
   );
 };
@@ -243,11 +188,10 @@ const AddPurchaseDialog = ({ item }) => {
 };
 
 function Purchases(props) {
+  const { shop } = useContext(AppContext);
   const [search, setSearch] = useState("");
   const [purchases, setPurchases] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [services, setServices] = useState([]);
 
   useEffect(() => {
     if (search) {
@@ -310,7 +254,10 @@ function Purchases(props) {
 
   const registerPurchase = async () => {
     const result = await CustomDialog(
-      <ReceiptDialog total={getTotal()} lines={purchases} />
+      <ReceiptDialog total={getTotal()} lines={purchases} shop={shop} />,
+      {
+        className: "big-dialog",
+      }
     );
 
     if (result) {

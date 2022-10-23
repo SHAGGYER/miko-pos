@@ -19,6 +19,8 @@ import Pricing from "./pages/Pricing";
 import CreateShop from "./pages/CreateShop";
 import Products from "./pages/Products";
 import Services from "./pages/Services";
+import Contacts from "./pages/Contacts";
+import Invoices from "./pages/Invoices";
 
 const Wrapper = styled.div`
   display: flex;
@@ -98,6 +100,8 @@ function App() {
                 <Route path="/shops/create" element={<CreateShop />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/services" element={<Services />} />
+                <Route path="/contacts" element={<Contacts />} />
+                <Route path="/invoices" element={<Invoices />} />
               </Routes>
             </WrapperApp>
           ) : (

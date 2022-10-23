@@ -21,9 +21,11 @@ const SettingsWrapper = styled.article`
   }
 `;
 
-const SettingsGroup = ({ title, description, children }) => {
+const SettingsGroup = ({ right, title, description, children }) => {
   return (
-    <SettingsWrapper className="shadow-md p-4 mb-4">
+    <SettingsWrapper
+      className={"shadow-md p-4 mb-4 " + (right ? "text-right" : "")}
+    >
       <h2 className="text-xl mb-2">
         <span>{title}</span>
       </h2>
