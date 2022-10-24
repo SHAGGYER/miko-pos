@@ -7,6 +7,7 @@ import { LabelStyle } from "./Select";
 import { CountryDropdown } from "react-country-region-selector";
 import SettingsGroup from "./SettingsGroup";
 import styled from "styled-components";
+import cogoToast from "cogo-toast";
 
 const CountrySelect = styled.div`
   select {
@@ -23,7 +24,7 @@ function ContactForm({ row, onCreated, onUpdated }) {
   const [showNote, setShowNote] = useState(row ? !!row.note : false);
   const [error, setError] = useState({});
   const [address, setAddress] = useState(
-    row
+    row && row.address
       ? row.address
       : {
           street: "",
@@ -48,9 +49,11 @@ function ContactForm({ row, onCreated, onUpdated }) {
       if (!row?._id) {
         const { data } = await HttpClient().post("/api/contacts", body);
         onCreated(data.content);
+        cogoToast.success("Contact created successfully");
       } else {
         await HttpClient().put(`/api/contacts/${row._id}`, body);
         onUpdated({ ...row, ...body });
+        cogoToast.success("Contact updated successfully");
       }
     } catch (e) {
       if (e.response && e.response.status === 403) {
@@ -89,7 +92,7 @@ function ContactForm({ row, onCreated, onUpdated }) {
             <FloatingTextField
               label="Address"
               width="100%"
-              value={address.street}
+              value={address?.street}
               error={error.address?.street}
               onChange={(e) => handleChangeAddress("street", e.target.value)}
             />
@@ -97,7 +100,7 @@ function ContactForm({ row, onCreated, onUpdated }) {
               label="Zip"
               width="100%"
               error={error.address?.zip}
-              value={address.zip}
+              value={address?.zip}
               onChange={(e) => handleChangeAddress("zip", e.target.value)}
             />
           </div>
@@ -105,14 +108,14 @@ function ContactForm({ row, onCreated, onUpdated }) {
             <FloatingTextField
               label="City"
               error={error.address?.city}
-              value={address.city}
+              value={address?.city}
               width="100%"
               onChange={(e) => handleChangeAddress("city", e.target.value)}
             />
             <CountrySelect>
               <LabelStyle>Country</LabelStyle>
               <CountryDropdown
-                value={address.country}
+                value={address?.country}
                 onChange={(val) => handleChangeAddress("country", val)}
               />
               {error.address?.country && (
