@@ -131,13 +131,12 @@ exports.InvoiceController = class {
   static async search(req, res) {
     const user = await User.findById(res.locals.userId);
 
-    const rows = await Invoice.find({ shopId: user.shop })
+    const query = { shopId: user.shop, deletedAt: undefined };
+    const rows = await Invoice.find(query)
       .limit(10)
       .skip(parseInt(req.query.page - 1) * 10);
 
-    const totalRows = await Invoice.find({
-      shopId: user.shop,
-    }).countDocuments();
+    const totalRows = await Invoice.find(query).countDocuments();
 
     res.send({
       content: rows,
