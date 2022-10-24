@@ -249,6 +249,15 @@ function CaseForm({ row, onCreated, onUpdated }) {
           <div className="mb-4">
             {contact && (
               <SettingsGroup title={contact.name} description={contact.email}>
+                {contact.address && (
+                  <p className="mb-4">
+                    {contact.address.street}
+                    <br />
+                    {contact.address.city} {contact.address.zip}
+                    <br />
+                    {contact.address.country}
+                  </p>
+                )}
                 {!row?._id && (
                   <PrimaryButton
                     $mini

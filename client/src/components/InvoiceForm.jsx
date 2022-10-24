@@ -163,6 +163,15 @@ function InvoiceForm({ row, shop, type, mode, total, onInvoiceGenerated }) {
               title={selectedContact.name}
               description={selectedContact.email}
             >
+              {selectedContact.address && (
+                <p className="mb-4">
+                  {selectedContact.address.street}
+                  <br />
+                  {selectedContact.address.city} {selectedContact.address.zip}
+                  <br />
+                  {selectedContact.address.country}
+                </p>
+              )}
               {mode !== RESOURCE_MODE.VIEW && (
                 <PrimaryButton onClick={() => setSelectedContact(null)}>
                   Reset
