@@ -6,4 +6,6 @@ export const AppContext = createContext({
   shop: null,
   setShop: () => null,
   logout: () => null,
+  purchase: null,
+  setPurchase: () => null,
 });

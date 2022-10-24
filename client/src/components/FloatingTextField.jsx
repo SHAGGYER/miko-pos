@@ -56,7 +56,11 @@ const FloatingTextFieldStyled = styled.div`
 
 function FloatingTextField({
   label,
+  autoFocus,
   onChange,
+  onClick,
+  onFocus,
+  onBlur,
   value,
   type,
   error,
@@ -69,8 +73,12 @@ function FloatingTextField({
     <FloatingTextFieldStyled className="field" style={{ width }}>
       {!!error && <ErrorStyle>{error}</ErrorStyle>}
       <input
+        autoFocus={autoFocus}
         readOnly={readOnly}
         id={uuid}
+        onClick={onClick}
+        onFocus={onFocus}
+        onBlur={onBlur}
         type={type}
         value={value}
         onChange={onChange}

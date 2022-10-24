@@ -9,5 +9,6 @@ router.use("/services", require("./service"));
 router.use("/contacts", require("./contact"));
 router.use("/invoices", require("./invoice"));
 router.use("/storage", require("./storage"));
+router.use("/cases", require("./case"));
 
 module.exports = router;

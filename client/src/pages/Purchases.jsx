@@ -10,6 +10,33 @@ import cogoToast from "cogo-toast";
 import InvoiceForm from "../components/InvoiceForm";
 import { AppContext } from "../AppContext";
 import Select from "../components/Select";
+import moment from "moment";
+
+export const getTotal = (lines) => {
+  if (!lines.length) return 0;
+
+  let total = 0;
+
+  lines.forEach((x) => {
+    if (x.isDiscount && x.computationStyle === "static") {
+      total -= parseFloat(x.sell_price);
+    } else if (!x.isDiscount) {
+      total += x.quantity * parseFloat(x.sell_price);
+    }
+  });
+
+  lines.forEach((x) => {
+    if (
+      x.isDiscount &&
+      x.computationStyle === "percentage" &&
+      x.sell_price > 0
+    ) {
+      total = total - (x.sell_price / 100) * total;
+    }
+  });
+
+  return total;
+};
 
 const items = [
   {
@@ -127,12 +154,24 @@ const ReceiptDialogStyled = styled.section`
   }
 `;
 
-const ReceiptDialog = ({ total, lines, shop }) => {
-  console.log(lines);
+const ReceiptDialog = ({ total, lines, shop, contact, dbCase }) => {
   const dialog = useDialog();
   const [row, setRow] = useState({
     lines,
+    contact,
   });
+
+  console.log(dbCase);
+
+  const handleClose = async () => {
+    if (dbCase) {
+      await HttpClient().put(`/api/cases/${dbCase._id}`, {
+        paidAt: moment().format("YYYY-MM-DD"),
+      });
+    }
+
+    dialog.close(true);
+  };
 
   return (
     <ReceiptDialogStyled>
@@ -140,7 +179,7 @@ const ReceiptDialog = ({ total, lines, shop }) => {
         total={total}
         row={row}
         shop={shop}
-        onInvoiceGenerated={() => dialog.close(true)}
+        onInvoiceGenerated={() => handleClose()}
       />
     </ReceiptDialogStyled>
   );
@@ -214,9 +253,11 @@ const AddPurchaseDialog = ({ item }) => {
 };
 
 function Purchases(props) {
-  const { shop } = useContext(AppContext);
+  const { shop, purchase } = useContext(AppContext);
   const [search, setSearch] = useState("");
-  const [purchases, setPurchases] = useState([]);
+  const [lines, setLines] = useState(
+    purchase?.lines?.length ? purchase.lines : []
+  );
   const [filteredItems, setFilteredItems] = useState([]);
 
   useEffect(() => {
@@ -255,46 +296,26 @@ function Purchases(props) {
   const addPurchase = async (item) => {
     const result = await CustomDialog(<AddPurchaseDialog item={item} />);
     if (result) {
-      const _purchases = [...purchases];
-      _purchases.push(result);
-      setPurchases(_purchases);
+      const _lines = [...lines];
+      _lines.push(result);
+      setLines(_lines);
     }
   };
 
   const deletePurchase = async (index) => {
-    const _purchases = [...purchases].filter((x, i) => i !== index);
-    setPurchases(_purchases);
-  };
-
-  const getTotal = () => {
-    if (!purchases.length) return 0;
-
-    let total = 0;
-
-    purchases.forEach((x) => {
-      if (x.isDiscount && x.computationStyle === "static") {
-        total -= parseFloat(x.sell_price);
-      } else if (!x.isDiscount) {
-        total += parseFloat(x.sell_price);
-      }
-    });
-
-    purchases.forEach((x) => {
-      if (
-        x.isDiscount &&
-        x.computationStyle === "percentage" &&
-        x.sell_price > 0
-      ) {
-        total = total - (x.sell_price / 100) * total;
-      }
-    });
-
-    return total;
+    const _lines = [...lines].filter((x, i) => i !== index);
+    setLines(_lines);
   };
 
   const registerPurchase = async () => {
     const result = await CustomDialog(
-      <ReceiptDialog total={getTotal()} lines={purchases} shop={shop} />,
+      <ReceiptDialog
+        contact={purchase?.contact}
+        total={getTotal(lines)}
+        lines={lines}
+        dbCase={purchase?.dbCase}
+        shop={shop}
+      />,
       {
         className: "big-dialog",
       }
@@ -302,7 +323,7 @@ function Purchases(props) {
 
     if (result) {
       cogoToast.success("Successfully registered payment");
-      setPurchases([]);
+      setLines([]);
     }
   };
 
@@ -329,7 +350,7 @@ function Purchases(props) {
           <h2>Purchases</h2>
 
           <ul>
-            {purchases.map((purchase, index) => (
+            {lines.map((purchase, index) => (
               <li key={index}>
                 <span>
                   {purchase.title} -{" "}
@@ -339,6 +360,7 @@ function Purchases(props) {
                   ) : (
                     <span>{parseFloat(purchase.sell_price).toFixed(2)}</span>
                   )}
+                  <span> x {purchase.quantity}</span>
                 </span>
                 <a href="#" onClick={() => deletePurchase(index)}>
                   Delete
@@ -348,10 +370,10 @@ function Purchases(props) {
           </ul>
 
           <article>
-            <span>TOTAL: {getTotal().toFixed(2)}</span>
+            <span>TOTAL: {getTotal(lines).toFixed(2)}</span>
             <PrimaryButton
               onClick={registerPurchase}
-              disabled={getTotal() === 0}
+              disabled={getTotal(lines) === 0}
             >
               Register
             </PrimaryButton>

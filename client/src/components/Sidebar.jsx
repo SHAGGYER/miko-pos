@@ -68,13 +68,13 @@ function Sidebar(props) {
         {shop ? (
           <ul>
             <li onClick={() => navigate("/")}>Dashboard</li>
-            <li onClick={() => navigate("/purchases")}>Purchases</li>
+            <li onClick={() => navigate("/purchases")}>Cash Register</li>
+            <li onClick={() => navigate("/cases")}>Case Management</li>
             <li onClick={() => navigate("/contacts")}>Contacts</li>
             <li onClick={() => navigate("/products")}>Products</li>
             <li onClick={() => navigate("/services")}>Services</li>
             <li onClick={() => navigate("/invoices")}>Invoices</li>
             <li onClick={() => navigate("/storage")}>Storage</li>
-            <li onClick={() => navigate("/history")}>History</li>
           </ul>
         ) : (
           <ul>

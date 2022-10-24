@@ -7,8 +7,6 @@ import Sidebar from "./components/Sidebar";
 import { AppContext } from "./AppContext";
 import { Routes, Route } from "react-router-dom";
 import Purchases from "./pages/Purchases";
-import Accounts from "./pages/Accounts";
-import History from "./pages/History";
 import Dashboard from "./pages/Dashboard";
 import Homepage from "./pages/Homepage";
 import Navbar from "./components/Navbar";
@@ -20,6 +18,7 @@ import Services from "./pages/Services";
 import Contacts from "./pages/Contacts";
 import Invoices from "./pages/Invoices";
 import Storage from "./pages/Storage";
+import Cases from "./pages/Cases";
 
 const Wrapper = styled.div`
   display: flex;
@@ -38,6 +37,7 @@ function App() {
   const [initiated, setInitiated] = useState(false);
   const [user, setUser] = useState(null);
   const [shop, setShop] = useState(null);
+  const [purchase, setPurchase] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -86,6 +86,8 @@ function App() {
             logout,
             shop,
             setShop,
+            purchase,
+            setPurchase,
           }}
         >
           {user ? (
@@ -94,10 +96,9 @@ function App() {
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/purchases" element={<Purchases />} />
-                <Route path="/accounts" element={<Accounts />} />
-                <Route path="/history" element={<History />} />
                 <Route path="/shops/create" element={<CreateShop />} />
                 <Route path="/products" element={<Products />} />
+                <Route path="/cases" element={<Cases />} />
                 <Route path="/services" element={<Services />} />
                 <Route path="/contacts" element={<Contacts />} />
                 <Route path="/invoices" element={<Invoices />} />

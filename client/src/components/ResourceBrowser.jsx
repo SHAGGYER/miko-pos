@@ -7,6 +7,7 @@ import { Confirm, CustomDialog, useDialog } from "react-st-modal";
 import ProductsContainer from "../components/ProductsContainer";
 import DataTable from "react-data-table-component";
 import { HttpClient } from "../utilities/HttpClient";
+import { AppContext } from "../AppContext";
 
 export const RESOURCE_MODE = {
   VIEW: "view",
@@ -25,9 +26,14 @@ const CreateDialog = ({ component: Component }) => {
 };
 
 const ViewDialog = ({ component: Component, ...props }) => {
+  const dialog = useDialog();
   return (
     <div style={{ padding: "1rem", position: "relative" }}>
-      <Component {...props} mode={RESOURCE_MODE.VIEW} />
+      <Component
+        {...props}
+        mode={RESOURCE_MODE.VIEW}
+        close={() => dialog.close()}
+      />
     </div>
   );
 };
@@ -64,9 +70,11 @@ function ResourceBrowser({
   editComponent,
   viewComponent,
   url,
+  onSelect,
   title,
   ...props
 }) {
+  const { purchases, setPurchases } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
   const [totalRows, setTotalRows] = useState(0);
@@ -97,9 +105,7 @@ function ResourceBrowser({
               )}
             </div>
           ) : (
-            <PrimaryButton onClick={() => props.onSelect(row)}>
-              Select
-            </PrimaryButton>
+            <PrimaryButton onClick={() => onSelect(row)}>Select</PrimaryButton>
           ),
       },
     ]);
@@ -130,7 +136,13 @@ function ResourceBrowser({
 
   const openViewDialog = async (row) => {
     await CustomDialog(
-      <ViewDialog shop={shop} component={viewComponent} row={row} />,
+      <ViewDialog
+        shop={shop}
+        purchases={purchases}
+        setPurchases={setPurchases}
+        component={viewComponent}
+        row={row}
+      />,
       {
         className: bigDialog ? "big-dialog" : "",
       }

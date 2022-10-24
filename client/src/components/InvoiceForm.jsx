@@ -6,6 +6,7 @@ import { HttpClient } from "../utilities/HttpClient";
 import SettingsGroup from "./SettingsGroup";
 import ContactForm from "./ContactForm";
 import moment from "moment";
+import InvoiceLinesTable from "./InvoiceLinesTable";
 
 const SelectContactDialog = () => {
   const dialog = useDialog();
@@ -151,20 +152,7 @@ function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
         title="Invoice Lines"
         description="Here are the invoice lines"
       >
-        <div className="flex flex-col border border-gray-500 p-4 mt-4 mb-4">
-          {lines.map((line, index) => (
-            <div key={index} className="w-full flex justify-between">
-              <span>{line.title}</span>
-              <span>
-                {line.isDiscount && line.computationStyle === "percentage" ? (
-                  <>{line.sell_price}%</>
-                ) : (
-                  <>{line.sell_price.toFixed(2)}</>
-                )}
-              </span>
-            </div>
-          ))}
-        </div>
+        <InvoiceLinesTable lines={lines} setLines={setLines} />
       </SettingsGroup>
 
       <SettingsGroup title="Total" description="Here goes the total">
