@@ -1,8 +1,20 @@
 import React, { useState } from "react";
-import FloatingTextField from "./FloatingTextField";
+import FloatingTextField, { ErrorStyle } from "./FloatingTextField";
 import { PrimaryButton } from "./PrimaryButton";
 import { HttpClient } from "../utilities/HttpClient";
 import FloatingTextArea from "./FloatingTextArea";
+import { LabelStyle } from "./Select";
+import { CountryDropdown } from "react-country-region-selector";
+import SettingsGroup from "./SettingsGroup";
+import styled from "styled-components";
+
+const CountrySelect = styled.div`
+  select {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    width: 100%;
+  }
+`;
 
 function ContactForm({ row, onCreated, onUpdated }) {
   const [name, setName] = useState(row ? row.name : "");
@@ -10,6 +22,16 @@ function ContactForm({ row, onCreated, onUpdated }) {
   const [note, setNote] = useState(row ? row.note : "");
   const [showNote, setShowNote] = useState(row ? !!row.note : false);
   const [error, setError] = useState({});
+  const [address, setAddress] = useState(
+    row
+      ? row.address
+      : {
+          street: "",
+          zip: "",
+          city: "",
+          country: "",
+        }
+  );
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -20,6 +42,7 @@ function ContactForm({ row, onCreated, onUpdated }) {
         name,
         email,
         note,
+        address,
       };
 
       if (!row?._id) {
@@ -34,6 +57,12 @@ function ContactForm({ row, onCreated, onUpdated }) {
         setError(e.response.data.errors);
       }
     }
+  };
+
+  const handleChangeAddress = (prop, value) => {
+    const _address = { ...address };
+    _address[prop] = value;
+    setAddress(_address);
   };
 
   return (
@@ -54,6 +83,44 @@ function ContactForm({ row, onCreated, onUpdated }) {
           onChange={(e) => setEmail(e.target.value)}
           width="100%"
         />
+
+        <div className="flex flex-col gap-4 w-full">
+          <div className="flex gap-4 w-full">
+            <FloatingTextField
+              label="Address"
+              width="100%"
+              value={address.street}
+              error={error.address?.street}
+              onChange={(e) => handleChangeAddress("street", e.target.value)}
+            />
+            <FloatingTextField
+              label="Zip"
+              width="100%"
+              error={error.address?.zip}
+              value={address.zip}
+              onChange={(e) => handleChangeAddress("zip", e.target.value)}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4 w-full">
+            <FloatingTextField
+              label="City"
+              error={error.address?.city}
+              value={address.city}
+              width="100%"
+              onChange={(e) => handleChangeAddress("city", e.target.value)}
+            />
+            <CountrySelect>
+              <LabelStyle>Country</LabelStyle>
+              <CountryDropdown
+                value={address.country}
+                onChange={(val) => handleChangeAddress("country", val)}
+              />
+              {error.address?.country && (
+                <ErrorStyle>{error.address?.country}</ErrorStyle>
+              )}
+            </CountrySelect>
+          </div>
+        </div>
 
         {(showNote || !!note) && (
           <FloatingTextArea

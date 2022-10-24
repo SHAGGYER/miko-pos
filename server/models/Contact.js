@@ -7,6 +7,8 @@ const ContactSchema = new mongoose.Schema(
     email: String,
     type: String,
     note: String,
+    address: Object,
+    deletedAt: Date,
   },
   {
     timestamps: true,

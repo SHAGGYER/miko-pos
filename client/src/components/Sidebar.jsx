@@ -72,7 +72,6 @@ function Sidebar(props) {
             <li onClick={() => navigate("/cases")}>Case Management</li>
             <li onClick={() => navigate("/contacts")}>Contacts</li>
             <li onClick={() => navigate("/products")}>Products</li>
-            <li onClick={() => navigate("/services")}>Services</li>
             <li onClick={() => navigate("/invoices")}>Invoices</li>
             <li onClick={() => navigate("/storage")}>Storage</li>
           </ul>

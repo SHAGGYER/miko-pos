@@ -7,7 +7,9 @@ const validator = require("validator");
 
 exports.ContactController = class {
   static async update(req, res) {
-    await Contact.findByIdAndUpdate(req.params.id, { $set: req.body });
+    await Contact.findByIdAndUpdate(req.params.id, {
+      $set: { ...req.body },
+    });
     res.sendStatus(204);
   }
 
@@ -40,6 +42,9 @@ exports.ContactController = class {
         {
           shopId: user.shop,
         },
+        {
+          deletedAt: undefined,
+        },
       ],
     };
 
@@ -63,7 +68,11 @@ exports.ContactController = class {
     const errors = await ValidationService.run(
       {
         name: [[(val) => !val, "Name is required"]],
-        email: [[(val) => !val, "Email is required"]],
+        /*       email: [[(val) => !val, "Email is required"]],*/
+        /*       "address.street": [[(val) => !val, "Address is required"]],
+        "address.zip": [[(val) => !val, "Zip is required"]],
+        "address.city": [[(val) => !val, "City is required"]],
+        "address.country": [[(val) => !val, "Country is required"]],*/
       },
       req.body
     );
