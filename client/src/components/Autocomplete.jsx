@@ -67,7 +67,7 @@ function Autocomplete({ url, label, onSelect, prop, additionalComponent }) {
   }, [search]);
 
   const fetchRows = async (search) => {
-    const { data } = await HttpClient().get(`${url}?search=${search}`);
+    const { data } = await HttpClient().get(`${url}?search=${search}&page=1`);
     setItems(data.content);
     setOpen(true);
   };
