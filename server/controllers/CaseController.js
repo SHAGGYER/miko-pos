@@ -67,6 +67,7 @@ exports.CaseController = class {
     const errors = await ValidationService.run(
       {
         lines: [[(val) => !val, "Lines are required"]],
+        contact: [[(val) => !val, "Contact is required"]],
       },
       req.body
     );

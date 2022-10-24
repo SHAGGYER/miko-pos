@@ -11,6 +11,7 @@ import { getTotal } from "../pages/Purchases";
 import Select from "./Select";
 import Autocomplete from "./Autocomplete";
 import InvoiceLinesTable from "./InvoiceLinesTable";
+import { SuccessButton } from "./SuccessButton";
 
 const NewCustomerDialog = () => {
   const dialog = useDialog();
@@ -221,7 +222,6 @@ function CaseForm({ row, onCreated, onUpdated }) {
 
   const openFreeTextDialog = async () => {
     const result = await CustomDialog(<FreeTextDialog />);
-    console.log(result);
     if (result) {
       setLines([...lines, result]);
     }
@@ -243,53 +243,67 @@ function CaseForm({ row, onCreated, onUpdated }) {
 
   return (
     <div className="p-4">
-      <h2>{row ? "Update" : "Create"} Case</h2>
+      <h2 className="mb-4">{row ? "Update" : "Create"} Case</h2>
 
       <div className="flex flex-col items-start gap-4">
-        <div>
-          {!contact ? (
-            <Autocomplete
-              url="/api/contacts"
-              prop="name"
-              label="Select Customer"
-              onSelect={(item) => setContact(item)}
-              additionalComponent={
-                <PrimaryButton onClick={openNewCustomerDialog}>
-                  New Contact
+        <article className="w-full">
+          <div className="mb-4">
+            {!contact ? (
+              <Autocomplete
+                url="/api/contacts"
+                prop="name"
+                label="Select Customer"
+                onSelect={(item) => setContact(item)}
+                additionalComponent={
+                  <PrimaryButton onClick={openNewCustomerDialog}>
+                    New Contact
+                  </PrimaryButton>
+                }
+              />
+            ) : (
+              <SettingsGroup title={contact.name} description={contact.email}>
+                {!row?._id && (
+                  <PrimaryButton
+                    $mini
+                    type="button"
+                    onClick={() => setContact(null)}
+                  >
+                    Reset
+                  </PrimaryButton>
+                )}
+              </SettingsGroup>
+            )}
+          </div>
+
+          <div className="flex gap-4 items-center">
+            {!row?.paidAt && (
+              <>
+                <PrimaryButton type="button" onClick={openProductsDialog}>
+                  Add Product
                 </PrimaryButton>
-              }
-            />
-          ) : (
-            <SettingsGroup title={contact.name} description={contact.email}>
-              <PrimaryButton
-                $mini
-                type="button"
-                onClick={() => setContact(null)}
-              >
-                Reset
-              </PrimaryButton>
-            </SettingsGroup>
-          )}
-        </div>
+                <PrimaryButton type="button" onClick={openFreeTextDialog}>
+                  Add Freetext
+                </PrimaryButton>
+                <PrimaryButton type="button" onClick={openDiscountDialog}>
+                  Add Discount
+                </PrimaryButton>
+              </>
+            )}
+            {row && <SuccessButton>Make Ready</SuccessButton>}
+          </div>
+        </article>
 
         <article className="w-full">
-          <div className="flex gap-1">
-            <PrimaryButton type="button" onClick={openProductsDialog}>
-              Add Product
-            </PrimaryButton>
-            <PrimaryButton type="button" onClick={openFreeTextDialog}>
-              Add Freetext
-            </PrimaryButton>
-            <PrimaryButton type="button" onClick={openDiscountDialog}>
-              Add Discount
-            </PrimaryButton>
-          </div>
           {!!lines.length && (
-            <InvoiceLinesTable lines={lines} setLines={setLines} editable />
+            <InvoiceLinesTable
+              lines={lines}
+              setLines={setLines}
+              editable={!row?.paidAt}
+            />
           )}
         </article>
 
-        <PrimaryButton onClick={onSubmit}>Save</PrimaryButton>
+        {!row?.paidAt && <PrimaryButton onClick={onSubmit}>Save</PrimaryButton>}
       </div>
     </div>
   );

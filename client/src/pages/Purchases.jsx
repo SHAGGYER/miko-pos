@@ -41,12 +41,16 @@ export const getTotal = (lines) => {
 const items = [
   {
     _id: 1,
-    title: "Custom",
+    product: {
+      title: "Custom",
+    },
     isCustom: true,
   },
   {
     _id: 2,
-    title: "Discount",
+    product: {
+      title: "Discount",
+    },
     isDiscount: true,
   },
 ];
@@ -161,8 +165,6 @@ const ReceiptDialog = ({ total, lines, shop, contact, dbCase }) => {
     contact,
   });
 
-  console.log(dbCase);
-
   const handleClose = async () => {
     if (dbCase) {
       await HttpClient().put(`/api/cases/${dbCase._id}`, {
@@ -200,11 +202,18 @@ const AddPurchaseDialog = ({ item }) => {
       dialog.close({
         ...item,
         sell_price: parseFloat(sell_price),
-        title,
+        quantity: 1,
+        product: {
+          title,
+        },
       });
     } else {
       dialog.close({
         ...item,
+        product: {
+          title: item.product.title,
+        },
+        quantity: 1,
         sell_price: parseFloat(sell_price),
         computationStyle: item.isDiscount ? computationStyle : undefined,
       });
@@ -253,7 +262,7 @@ const AddPurchaseDialog = ({ item }) => {
 };
 
 function Purchases(props) {
-  const { shop, purchase } = useContext(AppContext);
+  const { shop, purchase, setPurchase } = useContext(AppContext);
   const [search, setSearch] = useState("");
   const [lines, setLines] = useState(
     purchase?.lines?.length ? purchase.lines : []
@@ -283,21 +292,39 @@ function Purchases(props) {
       "/api/products?page=" + page + "&search=" + searchQuery
     );
 
-    const servicesResponse = await HttpClient().get(
-      "/api/services?page=" + page + "&search=" + searchQuery
-    );
     setFilteredItems([
-      ...items.filter((x) => x.title.toLowerCase().includes(searchQuery)),
-      ...productsResponse.data.content,
-      ...servicesResponse.data.content,
+      ...items.filter((x) =>
+        x.product?.title.toLowerCase().includes(searchQuery)
+      ),
+      ...productsResponse.data.content.map((x) => {
+        return {
+          product: x,
+          sell_price: x.sell_price,
+          quantity: 1,
+          _id: x._id,
+        };
+      }),
     ]);
   };
 
   const addPurchase = async (item) => {
-    const result = await CustomDialog(<AddPurchaseDialog item={item} />);
-    if (result) {
+    if (item.isCustom || item.isDiscount) {
+      const result = await CustomDialog(<AddPurchaseDialog item={item} />);
+      if (result) {
+        const _lines = [...lines];
+        _lines.push(result);
+        setLines(_lines);
+      }
+    } else {
       const _lines = [...lines];
-      _lines.push(result);
+      let found = _lines.find((x) => x._id === item._id);
+
+      if (!found) {
+        _lines.push(item);
+      } else {
+        found.quantity++;
+      }
+
       setLines(_lines);
     }
   };
@@ -324,6 +351,7 @@ function Purchases(props) {
     if (result) {
       cogoToast.success("Successfully registered payment");
       setLines([]);
+      setPurchase(null);
     }
   };
 
@@ -340,7 +368,7 @@ function Purchases(props) {
             <BoxContainer>
               {filteredItems.map((item, index) => (
                 <Box key={index} onClick={() => addPurchase(item)}>
-                  {item.title}
+                  {item.product?.title}
                 </Box>
               ))}
             </BoxContainer>
@@ -353,7 +381,7 @@ function Purchases(props) {
             {lines.map((purchase, index) => (
               <li key={index}>
                 <span>
-                  {purchase.title} -{" "}
+                  {purchase.product?.title} -{" "}
                   {purchase.isDiscount &&
                   purchase.computationStyle === "percentage" ? (
                     <span>{purchase.sell_price}%</span>

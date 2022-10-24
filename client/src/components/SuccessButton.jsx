@@ -1,0 +1,25 @@
+import React from "react";
+import styled from "styled-components";
+
+export const SuccessButton = styled.button`
+  background-color: var(--green);
+  border: none;
+  padding: ${(props) => (props.$mini ? "0.25rem 1rem" : "0.5rem 2rem")};
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 17px;
+  transition: all 0.3s ease-in-out;
+
+  :disabled {
+    cursor: not-allowed;
+    opacity: 0.25;
+  }
+
+  :hover:not(:disabled) {
+    background-color: #ccc;
+  }
+
+  cursor: ${(props) => (!!props.$loading ? "not-allowed" : "pointer")};
+`;

@@ -7,6 +7,7 @@ import SettingsGroup from "./SettingsGroup";
 import ContactForm from "./ContactForm";
 import moment from "moment";
 import InvoiceLinesTable from "./InvoiceLinesTable";
+import cogoToast from "cogo-toast";
 
 const SelectContactDialog = () => {
   const dialog = useDialog();
@@ -40,6 +41,7 @@ function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
     row ? row.contact : null
   );
   const [saveLoading, setSaveLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
   const [error, setError] = useState({});
   const [usedTotal, setUsedTotal] = useState(total ? total : row.total);
   const [usedRow, setUsedRow] = useState(row ? row : undefined);
@@ -68,6 +70,7 @@ function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
   };
 
   const sendInvoice = async () => {
+    setEmailLoading(true);
     const body = {
       email: usedRow?.contact?.email,
       attachments: [
@@ -79,6 +82,8 @@ function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
     };
 
     await HttpClient().post("/api/invoices/send-invoice", body);
+    cogoToast.success("Successfully sent email");
+    setEmailLoading(false);
   };
 
   const viewInvoice = () => {
@@ -148,16 +153,14 @@ function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
         </div>
       </div>
 
-      <SettingsGroup
-        title="Invoice Lines"
-        description="Here are the invoice lines"
-      >
-        <InvoiceLinesTable lines={lines} setLines={setLines} />
-      </SettingsGroup>
-
-      <SettingsGroup title="Total" description="Here goes the total">
-        <span>{usedTotal.toFixed(2)}</span>
-      </SettingsGroup>
+      <div className="mb-4">
+        <SettingsGroup
+          title="Invoice Lines"
+          description="Here are the invoice lines"
+        >
+          <InvoiceLinesTable lines={lines} setLines={setLines} />
+        </SettingsGroup>
+      </div>
 
       {mode !== RESOURCE_MODE.VIEW && (
         <PrimaryButton disabled={saveLoading} onClick={generateInvoice}>
@@ -168,8 +171,10 @@ function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
 
       {mode === RESOURCE_MODE.VIEW && (
         <div className="flex gap-1">
-          <PrimaryButton onClick={sendInvoice}>
-            Send Invoice on Email
+          <PrimaryButton disabled={emailLoading} onClick={sendInvoice}>
+            {emailLoading && <i className="fa-solid fa-spinner fa-spin"></i>}
+
+            <span>Send Invoice on Email</span>
           </PrimaryButton>
           <PrimaryButton onClick={viewInvoice}>View PDF</PrimaryButton>
           {!usedRow.paidAt && (

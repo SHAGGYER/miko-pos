@@ -4,7 +4,6 @@ import styled from "styled-components";
 const SettingsWrapper = styled.article`
   box-shadow: 0 3px 10px 0 rgba(0, 0, 0, 0.15);
   padding: 1rem;
-  margin-bottom: 1rem;
 
   h2 {
     font-size: 1.5rem;
@@ -23,9 +22,7 @@ const SettingsWrapper = styled.article`
 
 const SettingsGroup = ({ right, title, description, children }) => {
   return (
-    <SettingsWrapper
-      className={"shadow-md p-4 mb-4 " + (right ? "text-right" : "")}
-    >
+    <SettingsWrapper className={"shadow-md p-4 " + (right ? "text-right" : "")}>
       <h2 className="text-xl mb-2">
         <span>{title}</span>
       </h2>

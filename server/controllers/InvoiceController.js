@@ -64,13 +64,14 @@ exports.InvoiceController = class {
     for (let line of req.body.lines) {
       linesHtml += `
 <tr>
-    <td width="80%" class="purchase_item">
+    <td width="60%" class="purchase_item">
       <span class="f-fallback">
-        ${line.title}
+        ${line.product.title}
       </span>
     </td>
     <td class="align-right" width="20%" class="purchase_item">
       <span class="f-fallback">
+      ${line.quantity} x 
         ${
           line.isDiscount && line.computationStyle === "percentage"
             ? `${line.sell_price}%`
