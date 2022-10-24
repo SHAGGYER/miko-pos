@@ -10,6 +10,7 @@ const InvoiceSchema = new mongoose.Schema(
     shortId: String,
     fileName: String,
     paidAt: Date,
+    type: String,
   },
   {
     timestamps: true,

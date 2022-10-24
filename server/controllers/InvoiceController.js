@@ -48,10 +48,8 @@ exports.InvoiceController = class {
     }
 
     const invoice = new Invoice({
-      lines: req.body.lines,
-      total: req.body.total,
+      ...req.body,
       shortId: getRandomArbitrary(1000, 9999999),
-      contact: req.body.contact,
       shopId: user.shop._id,
     });
     await invoice.save();

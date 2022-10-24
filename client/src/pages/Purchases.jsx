@@ -181,6 +181,7 @@ const ReceiptDialog = ({ total, lines, shop, contact, dbCase }) => {
         total={total}
         row={row}
         shop={shop}
+        type="sell"
         onInvoiceGenerated={() => handleClose()}
       />
     </ReceiptDialogStyled>

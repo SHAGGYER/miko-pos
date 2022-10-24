@@ -47,6 +47,12 @@ function Cases() {
             cell: (row) => row.contact?.email,
           },
           {
+            name: "Status",
+            cell: (row) => {
+              return <>{row.ready ? "Ready" : "Pending"}</>;
+            },
+          },
+          {
             name: "Payment",
             cell: (row) => {
               return row.paidAt ? (

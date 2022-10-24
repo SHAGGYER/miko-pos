@@ -9,7 +9,7 @@ import DataTable from "react-data-table-component";
 import { HttpClient } from "../utilities/HttpClient";
 import ResourceBrowser, { RESOURCE_MODE } from "../components/ResourceBrowser";
 import ContactForm from "../components/ContactForm";
-import InvoiceForm from "../components/InvoiceForm";
+import InvoiceForm, { INVOICE_TYPES } from "../components/InvoiceForm";
 import { AppContext } from "../AppContext";
 
 function Invoices() {
@@ -25,20 +25,25 @@ function Invoices() {
             selector: "shortId",
           },
           {
+            name: "Total",
+            cell: (row) => {
+              return <>{parseFloat(row.total).toFixed(2)}</>;
+            },
+          },
+          {
             name: "Status",
             cell: (row) => {
               return <>{row.paidAt ? "Paid" : "Not yet paid"}</>;
             },
           },
           {
+            name: "Type",
+            cell: (row) => INVOICE_TYPES[row.type],
+          },
+          {
             name: "Contact Name",
             selector: "contact.name",
             cell: (row) => row.contact?.name,
-          },
-          {
-            name: "Contact Email",
-            selector: "contact.email",
-            cell: (row) => row.contact?.email,
           },
         ]}
         bigDialog

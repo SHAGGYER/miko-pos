@@ -9,6 +9,27 @@ import moment from "moment";
 import InvoiceLinesTable from "./InvoiceLinesTable";
 import cogoToast from "cogo-toast";
 
+export const INVOICE_TYPES = {
+  "credit-note": "Credit Note",
+  sell: "Sell Invoice",
+  buy: "Buy Invoice",
+};
+
+const CreditNoteDialog = ({ row, shop }) => {
+  const dialog = useDialog();
+  return (
+    <div className="p-4">
+      <InvoiceForm
+        type="credit-note"
+        row={row}
+        mode={RESOURCE_MODE.NEW}
+        onInvoiceGenerated={() => dialog.close(true)}
+        shop={shop}
+      />
+    </div>
+  );
+};
+
 const SelectContactDialog = () => {
   const dialog = useDialog();
   return (
@@ -35,7 +56,7 @@ const SelectContactDialog = () => {
   );
 };
 
-function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
+function InvoiceForm({ row, shop, type, mode, total, onInvoiceGenerated }) {
   const [lines, setLines] = useState(row ? row.lines : []);
   const [selectedContact, setSelectedContact] = useState(
     row ? row.contact : null
@@ -60,6 +81,7 @@ function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
         lines,
         contact: selectedContact,
         total: usedTotal,
+        type,
       });
       setSaveLoading(false);
       onInvoiceGenerated();
@@ -99,6 +121,15 @@ function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
     setUsedRow({ ...usedRow, paidAt });
   };
 
+  const openCreditNoteDialog = async () => {
+    await CustomDialog(
+      <CreditNoteDialog shop={shop} row={{ ...row, paidAt: undefined }} />,
+      {
+        className: "big-dialog",
+      }
+    );
+  };
+
   return (
     <div>
       {usedRow.paidAt && (
@@ -111,6 +142,8 @@ function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
           </span>
         </div>
       )}
+
+      <h3>{INVOICE_TYPES[usedRow?.type]}</h3>
 
       <div className="flex items-start justify-between mb-4">
         {!selectedContact ? (
@@ -158,7 +191,11 @@ function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
           title="Invoice Lines"
           description="Here are the invoice lines"
         >
-          <InvoiceLinesTable lines={lines} setLines={setLines} />
+          <InvoiceLinesTable
+            lines={lines}
+            setLines={setLines}
+            editable={type === "credit-note"}
+          />
         </SettingsGroup>
       </div>
 
@@ -182,6 +219,9 @@ function InvoiceForm({ row, shop, mode, total, onInvoiceGenerated }) {
               Register Payment
             </PrimaryButton>
           )}
+          <PrimaryButton onClick={openCreditNoteDialog}>
+            New Credit Note
+          </PrimaryButton>
         </div>
       )}
     </div>

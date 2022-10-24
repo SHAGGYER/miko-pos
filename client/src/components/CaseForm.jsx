@@ -9,7 +9,6 @@ import SettingsGroup from "./SettingsGroup";
 import ProductForm from "./ProductForm";
 import { getTotal } from "../pages/Purchases";
 import Select from "./Select";
-import Autocomplete from "./Autocomplete";
 import InvoiceLinesTable from "./InvoiceLinesTable";
 import { SuccessButton } from "./SuccessButton";
 
@@ -234,8 +233,8 @@ function CaseForm({ row, onCreated, onUpdated }) {
     }
   };
 
-  const openNewCustomerDialog = async () => {
-    const result = await CustomDialog(<NewCustomerDialog />);
+  const openContactDialog = async () => {
+    const result = await CustomDialog(<ContactDialog />);
     if (result) {
       setContact(result);
     }
@@ -248,19 +247,7 @@ function CaseForm({ row, onCreated, onUpdated }) {
       <div className="flex flex-col items-start gap-4">
         <article className="w-full">
           <div className="mb-4">
-            {!contact ? (
-              <Autocomplete
-                url="/api/contacts"
-                prop="name"
-                label="Select Customer"
-                onSelect={(item) => setContact(item)}
-                additionalComponent={
-                  <PrimaryButton onClick={openNewCustomerDialog}>
-                    New Contact
-                  </PrimaryButton>
-                }
-              />
-            ) : (
+            {contact && (
               <SettingsGroup title={contact.name} description={contact.email}>
                 {!row?._id && (
                   <PrimaryButton
@@ -278,6 +265,9 @@ function CaseForm({ row, onCreated, onUpdated }) {
           <div className="flex gap-4 items-center">
             {!row?.paidAt && (
               <>
+                <PrimaryButton onClick={openContactDialog}>
+                  Select Customer
+                </PrimaryButton>
                 <PrimaryButton type="button" onClick={openProductsDialog}>
                   Add Product
                 </PrimaryButton>

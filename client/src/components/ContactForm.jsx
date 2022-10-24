@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import FloatingTextField from "./FloatingTextField";
 import { PrimaryButton } from "./PrimaryButton";
 import { HttpClient } from "../utilities/HttpClient";
+import FloatingTextArea from "./FloatingTextArea";
 
 function ContactForm({ row, onCreated, onUpdated }) {
   const [name, setName] = useState(row ? row.name : "");
   const [email, setEmail] = useState(row ? row.email : "");
+  const [note, setNote] = useState(row ? row.note : "");
+  const [showNote, setShowNote] = useState(row ? !!row.note : false);
   const [error, setError] = useState({});
 
   const onSubmit = async (e) => {
@@ -16,6 +19,7 @@ function ContactForm({ row, onCreated, onUpdated }) {
       const body = {
         name,
         email,
+        note,
       };
 
       if (!row?._id) {
@@ -50,7 +54,34 @@ function ContactForm({ row, onCreated, onUpdated }) {
           onChange={(e) => setEmail(e.target.value)}
           width="100%"
         />
-        <PrimaryButton>Save</PrimaryButton>
+
+        {(showNote || !!note) && (
+          <FloatingTextArea
+            label="Note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+        )}
+
+        <div className="flex gap-1">
+          <PrimaryButton>Save</PrimaryButton>
+          {(showNote || note) && (
+            <PrimaryButton
+              type="button"
+              onClick={() => {
+                setShowNote(false);
+                setNote("");
+              }}
+            >
+              Close Note
+            </PrimaryButton>
+          )}
+          {!showNote && !note && (
+            <PrimaryButton onClick={() => setShowNote(true)} type="button">
+              Note
+            </PrimaryButton>
+          )}
+        </div>
       </form>
     </div>
   );
