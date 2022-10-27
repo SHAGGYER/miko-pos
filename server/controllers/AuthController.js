@@ -83,9 +83,11 @@ exports.AuthController = class {
 
     if (userId) {
       user = await User.findById(res.locals.userId);
-      shop = await Shop.findById(user.shop);
+
 
       if (user) {
+        shop = await Shop.findById(user.shop);
+        
         if (
           moment().isAfter(moment(user.stripeSubscriptionCurrentPeriodEnd)) &&
           user.isTrialing

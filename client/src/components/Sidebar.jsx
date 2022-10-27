@@ -9,8 +9,7 @@ const SidebarStyled = styled.nav`
   max-width: 300px;
   padding: 1rem;
   height: 100%;
-  background-color: #0c5460;
-  color: white;
+  background: #363740;
   display: flex;
   flex-direction: column;
 
@@ -18,6 +17,7 @@ const SidebarStyled = styled.nav`
     text-align: center;
     font-size: 20px;
     margin-bottom: 2rem;
+    color: #a4a6b3;
   }
 
   article {
@@ -30,6 +30,10 @@ const SidebarStyled = styled.nav`
         cursor: pointer;
         padding: 0.5rem;
         transition: all 0.5s ease-in-out;
+        color: #a4a6b3;
+
+        margin-bottom: 0.5rem;
+        border-radius: 7px;
 
         &:hover {
           padding-left: 1rem;

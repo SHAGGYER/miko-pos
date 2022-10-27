@@ -113,13 +113,15 @@ const Box = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid black;
   cursor: pointer;
   transition: all 0.5s ease-in-out;
   user-select: none;
+  background: white;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
 
   &:hover {
-    background-color: #ccc;
+    background-color: #3751ff;
+    color: white;
   }
 `;
 

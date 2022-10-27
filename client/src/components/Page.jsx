@@ -5,4 +5,5 @@ export const Page = styled.section`
   height: 100%;
   overflow-y: auto;
   width: 100%;
+  background: #e7e7e7;
 `;
